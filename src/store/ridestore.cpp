@@ -247,6 +247,27 @@ std::vector<Ride::Sample> RideStore::samples(qint64 id) const
     return out;
 }
 
+QVariantMap RideStore::totals() const
+{
+    QVariantMap out;
+    out.insert(QStringLiteral("count"), 0);
+    out.insert(QStringLiteral("distanceKm"), 0.0);
+    out.insert(QStringLiteral("durationS"), 0.0);
+    out.insert(QStringLiteral("energyWh"), 0.0);
+    if (!m_open)
+        return out;
+    QSqlQuery q(m_db);
+    if (q.exec(QStringLiteral("SELECT COUNT(*), COALESCE(SUM(distance_km),0), COALESCE(SUM(duration_s),0),"
+                              "COALESCE(SUM(energy_wh),0) FROM rides WHERE end_ms > 0"))
+        && q.next()) {
+        out.insert(QStringLiteral("count"), q.value(0).toInt());
+        out.insert(QStringLiteral("distanceKm"), q.value(1).toDouble());
+        out.insert(QStringLiteral("durationS"), q.value(2).toDouble());
+        out.insert(QStringLiteral("energyWh"), q.value(3).toDouble());
+    }
+    return out;
+}
+
 int RideStore::sampleCount(qint64 id) const
 {
     if (!m_open)

@@ -125,6 +125,7 @@ public:
     Q_INVOKABLE bool startRecording();
     Q_INVOKABLE void stopRecording();
     Q_INVOKABLE QVariantMap rideDetail(qint64 id);
+    Q_INVOKABLE QVariantMap rideTotals() const { return m_store.totals(); }
     Q_INVOKABLE bool renameRide(qint64 id, const QString &name);
     Q_INVOKABLE bool deleteRide(qint64 id);
     // format: "gpx" or "csv". Returns the file's path, or an empty string.
@@ -138,6 +139,7 @@ signals:
     void bikeChanged();
     void scanningChanged();
     void recordingChanged();
+    void ridesChanged();
     void recordingInfoChanged();
     void gpsChanged();
     void settingsChanged();
@@ -236,6 +238,7 @@ private:
     int m_linkLossSeconds = 0;
     QVariantMap m_recordingInfo;
     int m_flushCounter = 0;
+    bool m_gpsWarned = false;
 
     // Positioning
     QGeoPositionInfoSource *m_position = nullptr;

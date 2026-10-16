@@ -135,6 +135,7 @@ class App(QObject):
     logChanged = Signal()
     frameLogChanged = Signal()
     message = Signal(str)
+    ridesChanged = Signal()
 
     def __init__(self, **state):
         super().__init__()
@@ -200,6 +201,8 @@ class App(QObject):
     def setAssistLevel(self, n): return True
     @Slot(int, result=bool)
     def changeAssistLevel(self, n): return True
+    @Slot(result="QVariantMap")
+    def rideTotals(self): return dict(count=3, distanceKm=124.3, durationS=20700.0, energyWh=228.0)
     @Slot(result=bool)
     def resetTrip(self): return True
     @Slot(result=bool)

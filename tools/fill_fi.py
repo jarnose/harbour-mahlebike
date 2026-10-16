@@ -214,6 +214,8 @@ FI = {
 "Protocol": "Protokolla",
 "Forgetting the bike": "Unohdetaan pyörä",
 "Demo bike": "Esittelypyörä",
+"No GPS fix yet. Is Location switched on in Settings?": "Ei vielä GPS-paikannusta. Onko Sijainti päällä asetuksissa?",
+"In all: %1 %2, %3, %4 Wh": "Yhteensä: %1 %2, %3, %4 Wh",
 "Demo started: a pretend bike": "Esittely alkoi: näennäispyörä",
 "Demo: a pretend bike": "Esittely: näennäispyörä",
 "Demo stopped": "Esittely päättyi",

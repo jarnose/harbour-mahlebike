@@ -339,47 +339,52 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1103"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1080"/>
+        <source>No GPS fix yet. Is Location switched on in Settings?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1111"/>
         <source>No positioning source on this device</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1114"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1122"/>
         <source>Positioning error %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1120"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1128"/>
         <source>Waiting for a GPS fix…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1143"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1151"/>
         <source>GPS fix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1272"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1281"/>
         <source>Ride %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1280"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1289"/>
         <source>This ride has no GPS track. Export it as CSV instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1290"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1299"/>
         <source>Could not create %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1297"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1306"/>
         <source>Could not write %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1300"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1309"/>
         <source>Exported %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -885,37 +890,42 @@ Pair the bike in Settings &gt; Bluetooth instead, then come back here.</source>
 <context>
     <name>RidesPage</name>
     <message>
-        <location filename="../qml/pages/RidesPage.qml" line="14"/>
+        <location filename="../qml/pages/RidesPage.qml" line="29"/>
         <source>Rides</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RidesPage.qml" line="15"/>
+        <location filename="../qml/pages/RidesPage.qml" line="30"/>
         <source>%1 rides</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RidesPage.qml" line="32"/>
+        <location filename="../qml/pages/RidesPage.qml" line="38"/>
+        <source>In all: %1 %2, %3, %4 Wh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RidesPage.qml" line="59"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RidesPage.qml" line="34"/>
+        <location filename="../qml/pages/RidesPage.qml" line="61"/>
         <source>Deleting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RidesPage.qml" line="61"/>
+        <location filename="../qml/pages/RidesPage.qml" line="88"/>
         <source>recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RidesPage.qml" line="87"/>
+        <location filename="../qml/pages/RidesPage.qml" line="114"/>
         <source>No rides yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RidesPage.qml" line="88"/>
+        <location filename="../qml/pages/RidesPage.qml" line="115"/>
         <source>Press Start ride on the main page, or turn on automatic recording in Settings</source>
         <translation type="unfinished"></translation>
     </message>

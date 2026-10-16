@@ -5,14 +5,41 @@ import "../components/Format.js" as Format
 Page {
     id: page
 
+    property var totals: ({ distanceKm: 0, durationS: 0, energyWh: 0 })
+
+    function refreshTotals() {
+        totals = AppController.rideTotals()
+    }
+
+    Component.onCompleted: refreshTotals()
+
+    Connections {
+        target: AppController
+        onRidesChanged: page.refreshTotals()
+    }
+
     SilicaListView {
         id: list
         anchors.fill: parent
         model: AppController.rides
 
-        header: PageHeader {
-            title: qsTr("Rides")
-            description: list.count > 0 ? qsTr("%1 rides").arg(list.count) : ""
+        header: Column {
+            width: list.width
+            PageHeader {
+                title: qsTr("Rides")
+                description: list.count > 0 ? qsTr("%1 rides").arg(list.count) : ""
+            }
+            Label {
+                visible: list.count > 0
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                color: Theme.secondaryColor
+                font.pixelSize: Theme.fontSizeSmall
+                text: qsTr("In all: %1 %2, %3, %4 Wh").arg(Format.distance(page.totals.distanceKm, AppController.imperial, 0))
+                      .arg(Format.distanceUnit(AppController.imperial))
+                      .arg(Format.duration(page.totals.durationS))
+                      .arg(Math.round(page.totals.energyWh))
+            }
         }
 
         section {

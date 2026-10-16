@@ -1074,6 +1074,14 @@ void AppController::sampleTick()
     if (++m_flushCounter >= kFlushEverySeconds)
         flushSamples();
 
+    // Satellites take a while, and a phone with location switched off never finds any: say so once.
+    if (m_useGps && !m_haveFix && !m_gpsWarned && (now - m_recStartMs) > 60000) {
+        m_gpsWarned = true;
+        m_gpsStatus = tr("No GPS fix yet. Is Location switched on in Settings?");
+        logEvent(m_gpsStatus);
+        emit gpsChanged();
+    }
+
     QVariantMap info;
     info.insert(QStringLiteral("rideId"), m_recordingId);
     info.insert(QStringLiteral("elapsedS"), (now - m_recStartMs) / 1000);
@@ -1150,6 +1158,7 @@ void AppController::onPosition(const QGeoPositionInfo &info)
 void AppController::refreshRides()
 {
     m_rides.setRides(m_store.rides());
+    emit ridesChanged();
 }
 
 QVariantMap AppController::rideDetail(qint64 id)

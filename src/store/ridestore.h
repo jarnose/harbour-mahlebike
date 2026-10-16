@@ -59,6 +59,8 @@ public:
     std::vector<Ride::Sample> samples(qint64 id) const;
     bool renameRide(qint64 id, const QString &name);
     bool deleteRide(qint64 id);
+    // Count, distance (km), time (s) and battery (Wh) over all finished rides.
+    QVariantMap totals() const;
     // Samples written so far, for a ride that is being recorded.
     int sampleCount(qint64 id) const;
 
