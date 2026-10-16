@@ -57,490 +57,691 @@
 <context>
     <name>AppController</name>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="73"/>
+        <location filename="../src/controller/appcontroller.cpp" line="79"/>
         <source>Could not open the ride database: %1</source>
         <translation>Ajotietokantaa ei voitu avata: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="84"/>
+        <location filename="../src/controller/appcontroller.cpp" line="91"/>
         <source>Write to the bike failed: %1</source>
         <translation>Kirjoitus pyörälle epäonnistui: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="88"/>
+        <location filename="../src/controller/appcontroller.cpp" line="95"/>
         <source>Paired with the bike</source>
         <translation>Pariliitos pyörän kanssa tehty</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="89"/>
+        <location filename="../src/controller/appcontroller.cpp" line="96"/>
         <source>Paired</source>
         <translation>Pariliitos tehty</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="124"/>
+        <location filename="../src/controller/appcontroller.cpp" line="134"/>
         <source>The bike did not confirm assist level %1</source>
         <translation>Pyörä ei vahvistanut tukitasoa %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="134"/>
-        <location filename="../src/controller/appcontroller.cpp" line="681"/>
+        <location filename="../src/controller/appcontroller.cpp" line="144"/>
+        <location filename="../src/controller/appcontroller.cpp" line="697"/>
         <source>Not connected</source>
         <translation>Ei yhteyttä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="134"/>
-        <location filename="../src/controller/appcontroller.cpp" line="453"/>
-        <location filename="../src/controller/appcontroller.cpp" line="483"/>
-        <location filename="../src/controller/appcontroller.cpp" line="681"/>
+        <location filename="../src/controller/appcontroller.cpp" line="144"/>
+        <location filename="../src/controller/appcontroller.cpp" line="464"/>
+        <location filename="../src/controller/appcontroller.cpp" line="495"/>
+        <location filename="../src/controller/appcontroller.cpp" line="697"/>
         <source>No bike chosen</source>
         <translation>Pyörää ei ole valittu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="161"/>
+        <location filename="../src/controller/appcontroller.cpp" line="171"/>
         <source>Demo bike</source>
         <translation>Esittelypyörä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="176"/>
+        <location filename="../src/controller/appcontroller.cpp" line="186"/>
         <source>EBM (the bike does not answer)</source>
         <translation>EBM (pyörä ei vastaa kyselyyn)</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="239"/>
+        <location filename="../src/controller/appcontroller.cpp" line="249"/>
         <source>Bike controls enabled</source>
         <translation>Pyörän ohjaus sallittu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="239"/>
+        <location filename="../src/controller/appcontroller.cpp" line="249"/>
         <source>Bike controls disabled</source>
         <translation>Pyörän ohjaus estetty</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="283"/>
+        <location filename="../src/controller/appcontroller.cpp" line="293"/>
         <source>Writing every frame to %1</source>
         <translation>Jokainen kehys kirjoitetaan tiedostoon %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="283"/>
+        <location filename="../src/controller/appcontroller.cpp" line="293"/>
         <source>Frame tracing off</source>
         <translation>Kehysten tallennus pois</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="435"/>
+        <location filename="../src/controller/appcontroller.cpp" line="446"/>
         <source>Bike chosen: %1 (%2)</source>
         <translation>Pyörä valittu: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="483"/>
-        <location filename="../src/controller/appcontroller.cpp" line="484"/>
-        <location filename="../src/controller/appcontroller.cpp" line="576"/>
+        <location filename="../src/controller/appcontroller.cpp" line="495"/>
+        <location filename="../src/controller/appcontroller.cpp" line="496"/>
+        <location filename="../src/controller/appcontroller.cpp" line="591"/>
         <source>Disconnected</source>
         <translation>Yhteys katkaistu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="492"/>
+        <location filename="../src/controller/appcontroller.cpp" line="504"/>
         <source>The bike is not visible to Bluetooth right now</source>
         <translation>Pyörä ei näy Bluetoothille juuri nyt</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="495"/>
+        <location filename="../src/controller/appcontroller.cpp" line="507"/>
         <source>Pairing with %1</source>
         <translation>Tehdään pariliitos: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="508"/>
+        <location filename="../src/controller/appcontroller.cpp" line="520"/>
         <source>Looking for the bike…</source>
         <translation>Etsitään pyörää…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="511"/>
+        <location filename="../src/controller/appcontroller.cpp" line="523"/>
         <source>The bike is not visible to Bluetooth. Switch it on and keep it close.</source>
         <translation>Pyörä ei näy Bluetoothille. Kytke se päälle ja pidä lähellä.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="516"/>
+        <location filename="../src/controller/appcontroller.cpp" line="528"/>
         <source>Connecting to %1…</source>
         <translation>Yhdistetään: %1…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="517"/>
+        <location filename="../src/controller/appcontroller.cpp" line="529"/>
         <source>Connecting (attempt %1)</source>
         <translation>Yhdistetään (yritys %1)</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="535"/>
+        <location filename="../src/controller/appcontroller.cpp" line="547"/>
         <source>Trying again in %1 s</source>
         <translation>Yritetään uudelleen %1 s kuluttua</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="549"/>
+        <location filename="../src/controller/appcontroller.cpp" line="562"/>
         <source>Connected, waiting for the bike&apos;s data…</source>
         <translation>Yhdistetty, odotetaan pyörän tietoja…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="550"/>
-        <location filename="../src/controller/appcontroller.cpp" line="717"/>
-        <location filename="../src/controller/appcontroller.cpp" line="1255"/>
+        <location filename="../src/controller/appcontroller.cpp" line="563"/>
+        <location filename="../src/controller/appcontroller.cpp" line="733"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1453"/>
         <source>Connected</source>
         <translation>Yhdistetty</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="565"/>
+        <location filename="../src/controller/appcontroller.cpp" line="580"/>
         <source>The bike disconnected</source>
         <translation>Pyörä katkaisi yhteyden</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="574"/>
+        <location filename="../src/controller/appcontroller.cpp" line="589"/>
         <source>The bike disconnected.</source>
         <translation>Pyörä katkaisi yhteyden.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="610"/>
-        <location filename="../src/controller/appcontroller.cpp" line="1019"/>
-        <location filename="../src/controller/appcontroller.cpp" line="1053"/>
+        <location filename="../src/controller/appcontroller.cpp" line="625"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1069"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1217"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1251"/>
         <source>Not connected to the bike</source>
         <translation>Ei yhteyttä pyörään</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="614"/>
+        <location filename="../src/controller/appcontroller.cpp" line="629"/>
         <source>One moment…</source>
         <translation>Hetki…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="626"/>
+        <location filename="../src/controller/appcontroller.cpp" line="641"/>
         <source>Could not send to the bike</source>
         <translation>Pyörälle lähetys ei onnistunut</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="651"/>
+        <location filename="../src/controller/appcontroller.cpp" line="667"/>
         <source>Demo started: a pretend bike</source>
         <translation>Esittely alkoi: näennäispyörä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="652"/>
-        <location filename="../src/controller/appcontroller.cpp" line="717"/>
+        <location filename="../src/controller/appcontroller.cpp" line="668"/>
+        <location filename="../src/controller/appcontroller.cpp" line="733"/>
         <source>Demo: a pretend bike</source>
         <translation>Esittely: näennäispyörä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="680"/>
+        <location filename="../src/controller/appcontroller.cpp" line="696"/>
         <source>Demo stopped</source>
         <translation>Esittely päättyi</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="727"/>
+        <location filename="../src/controller/appcontroller.cpp" line="743"/>
         <source>VIN: %1</source>
         <translation>Valmistenumero: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="735"/>
+        <location filename="../src/controller/appcontroller.cpp" line="751"/>
         <source>Protocol version: %1</source>
         <translation>Protokollaversio: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="739"/>
+        <location filename="../src/controller/appcontroller.cpp" line="755"/>
         <source>Assist levels %1 to %2, now %3</source>
         <translation>Tukitasot %1–%2, nyt %3</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="742"/>
+        <location filename="../src/controller/appcontroller.cpp" line="758"/>
         <source>Assist answer: %1</source>
         <translation>Tukitason vastaus: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="752"/>
+        <location filename="../src/controller/appcontroller.cpp" line="768"/>
         <source>The bike does not have assist level %1</source>
         <translation>Pyörällä ei ole tukitasoa %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="767"/>
-        <location filename="../src/controller/appcontroller.cpp" line="787"/>
+        <location filename="../src/controller/appcontroller.cpp" line="782"/>
+        <source>The bike refused the diagnosis session</source>
+        <translation>Pyörä hylkäsi diagnostiikkaistunnon</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="801"/>
+        <location filename="../src/controller/appcontroller.cpp" line="821"/>
         <source>The bike accepted map %1</source>
         <translation>Pyörä hyväksyi kartan %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="792"/>
+        <location filename="../src/controller/appcontroller.cpp" line="826"/>
         <source>The bike refused map %1 (%2)</source>
         <translation>Pyörä hylkäsi kartan %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="908"/>
-        <location filename="../src/controller/appcontroller.cpp" line="941"/>
-        <location filename="../src/controller/appcontroller.cpp" line="954"/>
-        <location filename="../src/controller/appcontroller.cpp" line="1017"/>
+        <location filename="../src/controller/appcontroller.cpp" line="942"/>
+        <location filename="../src/controller/appcontroller.cpp" line="975"/>
+        <location filename="../src/controller/appcontroller.cpp" line="988"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1215"/>
         <source>Bike controls are off. Turn them on in Settings.</source>
         <translation>Pyörän ohjaus on pois. Ota se käyttöön asetuksissa.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="922"/>
+        <location filename="../src/controller/appcontroller.cpp" line="956"/>
         <source>Assist level %1 requested</source>
         <translation>Tukitasoa %1 pyydetty</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="932"/>
+        <location filename="../src/controller/appcontroller.cpp" line="966"/>
         <source>The bike&apos;s assist level is not known yet</source>
         <translation>Pyörän tukitasoa ei vielä tiedetä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="946"/>
+        <location filename="../src/controller/appcontroller.cpp" line="980"/>
         <source>Trip reset requested</source>
         <translation>Matkamittarin nollaus pyydetty</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="947"/>
+        <location filename="../src/controller/appcontroller.cpp" line="981"/>
         <source>Trip reset sent</source>
         <translation>Matkamittarin nollaus lähetetty</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="960"/>
+        <location filename="../src/controller/appcontroller.cpp" line="994"/>
         <source>Clock set to %1</source>
         <translation>Kello asetettu: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="961"/>
+        <location filename="../src/controller/appcontroller.cpp" line="995"/>
         <source>Bike clock set to %1</source>
         <translation>Pyörän kello asetettu: %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1021"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1006"/>
+        <source>Joystick</source>
+        <translation>Joystick</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1007"/>
+        <source>Display</source>
+        <translation>Näyttö</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1008"/>
+        <source>Tracker</source>
+        <translation>Seurantalaite</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1009"/>
+        <source>Controller</source>
+        <translation>Ohjain</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1010"/>
+        <source>Battery</source>
+        <translation>Akku</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1011"/>
+        <source>Motor</source>
+        <translation>Moottori</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1012"/>
+        <source>Range extender</source>
+        <translation>Toimintamatkan jatkaja</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1013"/>
+        <source>Radar</source>
+        <translation>Tutka</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1014"/>
+        <source>Internal HMI</source>
+        <translation>Sisäinen HMI</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1015"/>
+        <source>Component %1</source>
+        <translation>Osa %1</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1022"/>
+        <source>Serial number</source>
+        <translation>Valmistenumero</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1023"/>
+        <source>Firmware</source>
+        <translation>Ohjelmisto</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1024"/>
+        <source>Coding</source>
+        <translation>Koodaus</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1025"/>
+        <source>Status</source>
+        <translation>Tila</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1026"/>
+        <source>VIN</source>
+        <translation>Valmistenumero</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1027"/>
+        <source>Data %1</source>
+        <translation>Tieto %1</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1081"/>
+        <source>Reading the bike&apos;s information</source>
+        <translation>Luetaan pyörän tietoja</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1082"/>
+        <source>Starting…</source>
+        <translation>Aloitetaan…</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1085"/>
+        <source>Could not reach the bike</source>
+        <translation>Pyörään ei saatu yhteyttä</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1104"/>
+        <source>Ending the session…</source>
+        <translation>Päätetään istuntoa…</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1114"/>
+        <source>The bike did not start the diagnosis. It may need to be paired first.</source>
+        <translation>Pyörä ei aloittanut diagnostiikkaa. Pariliitos voi olla tarpeen ensin.</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1120"/>
+        <source>The bike did not acknowledge the end of the session</source>
+        <translation>Pyörä ei kuitannut istunnon päättymistä</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1159"/>
+        <source>Bike information: %1 answers from %2 components</source>
+        <translation>Pyörän tiedot: %1 vastausta %2 osalta</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1160"/>
+        <source>The bike did not answer. It may need to be paired first.</source>
+        <translation>Pyörä ei vastannut. Pariliitos voi olla tarpeen ensin.</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1160"/>
+        <source>Read</source>
+        <translation>Luettu</translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="1219"/>
         <source>Working…</source>
         <translation>Työskennellään…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1024"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1222"/>
         <source>Read the bike&apos;s maps first</source>
         <translation>Lue ensin pyörän kartat</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1028"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1226"/>
         <source>This bike&apos;s maps are not simple percentages, so the app does not write them.</source>
         <translation>Tämän pyörän kartat eivät ole yksinkertaisia prosentteja, joten sovellus ei kirjoita niitä.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1030"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1228"/>
         <source>The bike&apos;s maps are not numbered one after another.</source>
         <translation>Pyörän karttoja ei ole numeroitu peräkkäin.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1034"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1076"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1232"/>
         <source>Stop the bike first</source>
         <translation>Pysäytä ensin pyörä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1062"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1260"/>
         <source>Reading the motor maps</source>
         <translation>Luetaan moottorikarttoja</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1063"/>
+        <location filename="../src/controller/appcontroller.cpp" line="778"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1261"/>
         <source>Reading…</source>
         <translation>Luetaan…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1079"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1277"/>
         <source>The bike has %1 motor maps</source>
         <translation>Pyörällä on %1 moottorikarttaa</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1080"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1278"/>
         <source>The bike did not answer. This bike may not have motor maps this app understands.</source>
         <translation>Pyörä ei vastannut. Tällä pyörällä ei ehkä ole moottorikarttoja, jotka sovellus ymmärtää.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1081"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1279"/>
         <source>Maps read</source>
         <translation>Kartat luettu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1093"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1291"/>
         <source>Motor maps written and checked</source>
         <translation>Moottorikartat kirjoitettu ja tarkistettu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1094"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1292"/>
         <source>Written and checked</source>
         <translation>Kirjoitettu ja tarkistettu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1095"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1293"/>
         <source>Motor maps written</source>
         <translation>Moottorikartat kirjoitettu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1097"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1295"/>
         <source>Read back, but map %1 does not hold what was written</source>
         <translation>Luettu takaisin, mutta kartta %1 ei sisällä kirjoitettua</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1111"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1309"/>
         <source>The previous values are saved: use Restore.</source>
         <translation>Aiemmat arvot on tallennettu: käytä palautusta.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1125"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1323"/>
         <source>Asking for the maps one by one</source>
         <translation>Kysytään karttoja yksi kerrallaan</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1136"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1334"/>
         <source>The bike did not answer map %1</source>
         <translation>Pyörä ei vastannut karttaan %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1139"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1337"/>
         <source>No answer to map %1, trying again</source>
         <translation>Karttaan %1 ei vastausta, yritetään uudelleen</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1152"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1350"/>
         <source>Three values are needed, one per assist level</source>
         <translation>Tarvitaan kolme arvoa, yksi kutakin tukitasoa kohti</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1159"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1357"/>
         <source>Each value must be between %1 and 100 %</source>
         <translation>Jokaisen arvon on oltava välillä %1–100 %</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1187"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1385"/>
         <source>Writing motor maps %1 / %2 / %3 %</source>
         <translation>Kirjoitetaan moottorikartat %1 / %2 / %3 %</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1188"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1386"/>
         <source>Writing…</source>
         <translation>Kirjoitetaan…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1199"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1397"/>
         <source>Checking…</source>
         <translation>Tarkistetaan…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1201"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1399"/>
         <source>Could not read the maps back</source>
         <translation>Karttoja ei voitu lukea takaisin</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1211"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1409"/>
         <source>Could not send map %1</source>
         <translation>Karttaa %1 ei voitu lähettää</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1221"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1419"/>
         <source>There is nothing saved to restore</source>
         <translation>Palautettavaa ei ole tallennettu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1244"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1442"/>
         <source>Connected for %1 s without a data frame</source>
         <translation>Yhdistettynä %1 s ilman yhtään datakehystä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1245"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1443"/>
         <source>Connected, but the bike sends no data. Make sure no other phone is connected to it, or switch the bike off and on.</source>
         <translation>Yhdistetty, mutta pyörä ei lähetä tietoja. Varmista, ettei siinä ole toista puhelinta kytkettynä, tai kytke pyörä pois ja päälle.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1251"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1449"/>
         <source>Connected, but the bike has stopped sending data</source>
         <translation>Yhdistetty, mutta pyörä on lopettanut tietojen lähettämisen</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1273"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1471"/>
         <source>Ride stopped: standing still for %1 minutes</source>
         <translation>Ajo päättyi: paikallaan %1 minuuttia</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1297"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1495"/>
         <source>The ride database is not available</source>
         <translation>Ajotietokanta ei ole käytettävissä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1306"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1504"/>
         <source>Could not start the ride</source>
         <translation>Ajoa ei voitu aloittaa</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1321"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1519"/>
         <source>Ride started automatically</source>
         <translation>Ajo alkoi automaattisesti</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1321"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1519"/>
         <source>Ride started</source>
         <translation>Ajo alkoi</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1345"/>
-        <location filename="../src/controller/appcontroller.cpp" line="1346"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1543"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1544"/>
         <source>Ride discarded: too short</source>
         <translation>Ajo hylätty: liian lyhyt</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1353"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1551"/>
         <source>Ride saved: %1 km in %2 s</source>
         <translation>Ajo tallennettu: %1 km, %2 s</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1354"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1552"/>
         <source>Ride saved</source>
         <translation>Ajo tallennettu</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1400"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1598"/>
         <source>Ride stopped: no data from the bike for %1 minutes</source>
         <translation>Ajo päättyi: ei tietoja pyörältä %1 minuuttiin</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1428"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1626"/>
         <source>No GPS fix yet. Is Location switched on in Settings?</source>
         <translation>Ei vielä GPS-paikannusta. Onko Sijainti päällä asetuksissa?</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1459"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1657"/>
         <source>No positioning source on this device</source>
         <translation>Tässä laitteessa ei ole paikannuslähdettä</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1470"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1668"/>
         <source>Positioning error %1</source>
         <translation>Paikannusvirhe %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1476"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1674"/>
         <source>Waiting for a GPS fix…</source>
         <translation>Odotetaan GPS-paikannusta…</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1499"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1697"/>
         <source>GPS fix</source>
         <translation>GPS-paikannus</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1629"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1827"/>
         <source>Ride %1</source>
         <translation>Ajo %1</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1637"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1835"/>
         <source>This ride has no GPS track. Export it as CSV instead.</source>
         <translation>Tässä ajossa ei ole GPS-jälkeä. Vie se CSV-tiedostona.</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1647"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1845"/>
         <source>Could not create %1</source>
         <translation>Kansiota %1 ei voitu luoda</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1654"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1852"/>
         <source>Could not write %1</source>
         <translation>Tiedostoa %1 ei voitu kirjoittaa</translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1657"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1855"/>
         <source>Exported %1</source>
         <translation>Viety: %1</translation>
+    </message>
+</context>
+<context>
+    <name>BikeInfoPage</name>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="29"/>
+        <source>Bike information</source>
+        <translation>Pyörän tiedot</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="33"/>
+        <source>From the bike&apos;s own broadcast</source>
+        <translation>Pyörän omasta lähetyksestä</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="35"/>
+        <source>VIN</source>
+        <translation>Valmistenumero</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="39"/>
+        <source>Protocol</source>
+        <translation>Protokolla</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="44"/>
+        <source>Battery capacity</source>
+        <translation>Akun kapasiteetti</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="49"/>
+        <source>Charge cycles</source>
+        <translation>Latauskerrat</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="54"/>
+        <source>Odometer</source>
+        <translation>Matkamittari</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="59"/>
+        <source>Assist levels</source>
+        <translation>Tukitasot</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="63"/>
+        <source>Components</source>
+        <translation>Osat</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="70"/>
+        <source>Serial numbers and firmware versions are asked from the bike with a short diagnosis session. Nothing is changed. Stop the bike first.</source>
+        <translation>Sarjanumerot ja ohjelmistoversiot kysytään pyörältä lyhyellä diagnostiikkaistunnolla. Mitään ei muuteta. Pysäytä pyörä ensin.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="75"/>
+        <source>Working…</source>
+        <translation>Työskennellään…</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="75"/>
+        <source>Read from the bike</source>
+        <translation>Lue pyörältä</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/BikeInfoPage.qml" line="94"/>
+        <source>Last read %1</source>
+        <translation>Viimeksi luettu %1</translation>
     </message>
 </context>
 <context>
@@ -730,173 +931,178 @@ Tee pariliitos Asetukset &gt; Bluetooth -kohdassa ja palaa sitten tänne.</trans
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="36"/>
+        <source>Bike information</source>
+        <translation>Pyörän tiedot</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="41"/>
         <source>Motor maps</source>
         <translation>Moottorikartat</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="40"/>
+        <location filename="../qml/pages/MainPage.qml" line="45"/>
         <source>Settings</source>
         <translation>Asetukset</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="44"/>
+        <location filename="../qml/pages/MainPage.qml" line="49"/>
         <source>Rides</source>
         <translation>Ajot</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="49"/>
+        <location filename="../qml/pages/MainPage.qml" line="54"/>
         <source>Connect</source>
         <translation>Yhdistä</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="54"/>
+        <location filename="../qml/pages/MainPage.qml" line="59"/>
         <source>Disconnect</source>
         <translation>Katkaise yhteys</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="54"/>
+        <location filename="../qml/pages/MainPage.qml" line="59"/>
         <source>Stop the demo</source>
         <translation>Lopeta esittely</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="65"/>
+        <location filename="../qml/pages/MainPage.qml" line="70"/>
         <source>Mahle Bike</source>
         <translation>Mahle Bike</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="83"/>
+        <location filename="../qml/pages/MainPage.qml" line="88"/>
         <source>Switch the bike on and choose it. The bike talks to one phone at a time, so close the My SmartBike app first.</source>
         <translation>Kytke pyörä päälle ja valitse se. Pyörä puhuu kerrallaan yhden puhelimen kanssa, joten sulje ensin My SmartBike -sovellus.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="88"/>
+        <location filename="../qml/pages/MainPage.qml" line="93"/>
         <source>Choose a bike</source>
         <translation>Valitse pyörä</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="93"/>
+        <location filename="../qml/pages/MainPage.qml" line="98"/>
         <source>Try the demo</source>
         <translation>Kokeile esittelyä</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="102"/>
+        <location filename="../qml/pages/MainPage.qml" line="107"/>
         <source>The demo is a pretend bike that rides a loop: everything in the app can be tried with it, rides can be recorded and exported.</source>
         <translation>Esittely on näennäispyörä, joka ajaa kehää: sillä voi kokeilla kaikkea sovelluksessa, ja ajoja voi tallentaa ja viedä.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="139"/>
+        <location filename="../qml/pages/MainPage.qml" line="144"/>
         <source>Assist level</source>
         <translation>Tukitaso</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="167"/>
-        <location filename="../qml/pages/MainPage.qml" line="284"/>
+        <location filename="../qml/pages/MainPage.qml" line="172"/>
+        <location filename="../qml/pages/MainPage.qml" line="289"/>
         <source>Battery</source>
         <translation>Akku</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="181"/>
+        <location filename="../qml/pages/MainPage.qml" line="186"/>
         <source>Second battery</source>
         <translation>Toinen akku</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="211"/>
+        <location filename="../qml/pages/MainPage.qml" line="216"/>
         <source>The bike reports fault %1</source>
         <translation>Pyörä ilmoittaa vian %1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="213"/>
+        <location filename="../qml/pages/MainPage.qml" line="218"/>
         <source>Ask your dealer; the number identifies the fault.</source>
         <translation>Kysy myyjältä; numero yksilöi vian.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="228"/>
+        <location filename="../qml/pages/MainPage.qml" line="233"/>
         <source>You</source>
         <translation>Sinä</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="235"/>
-        <location filename="../qml/pages/MainPage.qml" line="277"/>
+        <location filename="../qml/pages/MainPage.qml" line="240"/>
+        <location filename="../qml/pages/MainPage.qml" line="282"/>
         <source>Motor</source>
         <translation>Moottori</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="242"/>
+        <location filename="../qml/pages/MainPage.qml" line="247"/>
         <source>Motor current</source>
         <translation>Moottorin virta</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="249"/>
+        <location filename="../qml/pages/MainPage.qml" line="254"/>
         <source>Torque</source>
         <translation>Vääntö</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="256"/>
+        <location filename="../qml/pages/MainPage.qml" line="261"/>
         <source>Range</source>
         <translation>Toimintamatka</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="263"/>
+        <location filename="../qml/pages/MainPage.qml" line="268"/>
         <source>Trip</source>
         <translation>Matka</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="270"/>
+        <location filename="../qml/pages/MainPage.qml" line="275"/>
         <source>Odometer</source>
         <translation>Matkamittari</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="291"/>
+        <location filename="../qml/pages/MainPage.qml" line="296"/>
         <source>Voltage</source>
         <translation>Jännite</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="298"/>
+        <location filename="../qml/pages/MainPage.qml" line="303"/>
         <source>Battery current</source>
         <translation>Akun virta</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="304"/>
+        <location filename="../qml/pages/MainPage.qml" line="309"/>
         <source>Charge cycles</source>
         <translation>Latauskerrat</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="309"/>
+        <location filename="../qml/pages/MainPage.qml" line="314"/>
         <source>On</source>
         <translation>Päällä</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="309"/>
+        <location filename="../qml/pages/MainPage.qml" line="314"/>
         <source>Off</source>
         <translation>Pois</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="310"/>
+        <location filename="../qml/pages/MainPage.qml" line="315"/>
         <source>Light</source>
         <translation>Valo</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="317"/>
+        <location filename="../qml/pages/MainPage.qml" line="322"/>
         <source>Remote</source>
         <translation>Kaukosäädin</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="336"/>
+        <location filename="../qml/pages/MainPage.qml" line="341"/>
         <source>Stop ride</source>
         <translation>Lopeta ajo</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="336"/>
+        <location filename="../qml/pages/MainPage.qml" line="341"/>
         <source>Start ride</source>
         <translation>Aloita ajo</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="365"/>
+        <location filename="../qml/pages/MainPage.qml" line="370"/>
         <source>Rides start by themselves when you set off</source>
         <translation>Ajo alkaa itsestään, kun lähdet liikkeelle</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="366"/>
+        <location filename="../qml/pages/MainPage.qml" line="371"/>
         <source>Records speed, power and battery</source>
         <translation>Tallentaa nopeuden, tehon ja akun</translation>
     </message>

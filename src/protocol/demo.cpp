@@ -126,6 +126,18 @@ Bytes encodeMapAck(bool ok)
     return Bytes(s.begin(), s.end());
 }
 
+Bytes encodeDiagAck(char sub, bool ok)
+{
+    const std::string s = std::string("$d$") + sub + (ok ? "#OK#@" : "#ER#@");
+    return Bytes(s.begin(), s.end());
+}
+
+Bytes encodeDiagData(char device, int type, const std::string &data)
+{
+    const std::string s = std::string("$d$R#") + device + char('0' + type) + "#" + data + "#@";
+    return Bytes(s.begin(), s.end());
+}
+
 Bike::Bike() = default;
 
 std::vector<Bytes> Bike::step(double dt)
@@ -193,6 +205,25 @@ std::vector<Bytes> Bike::receive(const Bytes &c)
         if (level >= 0 && level <= 5) {
             m_assist = level;
             out.push_back(encodeAssistRange(0, 5, m_assist));
+        }
+    } else if (s == "$D$I#@") {
+        m_diag = true;
+        out.push_back(encodeDiagAck('I', true));
+    } else if (s == "$D$E#@") {
+        m_diag = false;
+        out.push_back(encodeDiagAck('E', true));
+    } else if (s.compare(0, 5, "$D$R#") == 0 && c.size() == 8) {
+        if (!m_diag) {
+            out.push_back(Bytes{ '$', 'd', '$', 'R', '#', static_cast<uint8_t>(c[5]), '1', 'E', 'R', '#', '@' });
+        } else {
+            struct Dev { char code; const char *serial; const char *firmware; };
+            static const Dev devs[] = { { '2', "DISPLAY00012345", "2.4.1" }, { '4', "CTRL00098765", "3.1.0" },
+                                        { '5', "BATT00055555", "1.9.2" },    { '6', "MOTOR0004444", "5.0.7" } };
+            for (const Dev &d : devs)
+                if (c[5] == '0' || c[5] == static_cast<uint8_t>(d.code)) {
+                    out.push_back(encodeDiagData(d.code, 1, d.serial));
+                    out.push_back(encodeDiagData(d.code, 2, d.firmware));
+                }
         }
     } else if (s == "$M$R#@") {
         m_tripKm = 0;

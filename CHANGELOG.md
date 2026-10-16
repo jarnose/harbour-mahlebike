@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+- "Bike information" page: the bike's own broadcast (VIN, capacity, charge cycles, odometer, assist levels)
+  and, read with the official app's diagnosis session, the serial numbers and firmware versions of its
+  components. Read-only; the last result is kept per bike.
+
 ## 0.2.1
 
 - A refused assist level (the bike has levels 0 to 3) now says so and stops the + button there, instead of

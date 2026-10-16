@@ -61,6 +61,10 @@ class AppController : public QObject
     // The bike's motor maps and what the app is doing with them: state ("idle", "reading", "writing",
     // "verifying"), known, maps [{map, percent}], percentLayout, writable, backups, message.
     Q_PROPERTY(QVariantMap motorMaps READ motorMaps NOTIFY motorMapsChanged)
+    // What the bike's components report about themselves (serial numbers, firmware), read with the
+    // official app's diagnosis session; the last result is kept per bike. state: "idle", "starting",
+    // "reading", "ending"; devices [{code, name, items [{type, name, text, error}]}]; readAtMs.
+    Q_PROPERTY(QVariantMap bikeInfo READ bikeInfo NOTIFY bikeInfoChanged)
     Q_PROPERTY(QString logText READ logText NOTIFY logChanged)
     Q_PROPERTY(QString frameLogText READ frameLogText NOTIFY frameLogChanged)
     Q_PROPERTY(QString version READ version CONSTANT)
@@ -94,6 +98,7 @@ public:
     bool keepScreenOn() const { return m_keepScreenOn; }
     bool traceFrames() const { return m_traceFrames; }
     QVariantMap motorMaps() const { return m_mapsInfo; }
+    QVariantMap bikeInfo() const { return m_info; }
     QString logText() const { return m_log.join(QLatin1Char('\n')); }
     QString frameLogText() const;
     QString version() const;
@@ -125,6 +130,9 @@ public:
     Q_INVOKABLE bool resetTrip();
     Q_INVOKABLE bool syncClock();
 
+    // Read-only: starts a diagnosis session, asks every component, ends the session.
+    Q_INVOKABLE void readBikeInfo();
+
     // Motor maps. A read asks the bike for all of them (read-only). A write takes one percentage per
     // assist level (1..3), keeps a backup of what the bike had, writes the maps one by one waiting for
     // the bike's OK, and reads them back to check. "which" is "previous" or "original".
@@ -152,6 +160,7 @@ signals:
     void recordingChanged();
     void ridesChanged();
     void motorMapsChanged();
+    void bikeInfoChanged();
     void recordingInfoChanged();
     void gpsChanged();
     void settingsChanged();
@@ -193,6 +202,14 @@ private:
     bool fresh(int maxAgeMs) const;
     bool linkOpen() const { return m_demo || m_link.isOpen(); }
     void handleFrame(const QByteArray &data);
+    // Bike information
+    void diagReset();
+    void diagPublish(const QString &message = QString());
+    void diagStartEnding();
+    void diagFinish();
+    void diagAbort(const QString &why);
+    void diagOnTimeout();
+    void diagLoad();
     // Motor maps
     void mapsFinishRead();
     void mapsWriteStep();
@@ -238,6 +255,13 @@ private:
     int m_mapTries = 0;
     bool m_mapAckPending = false;
     QString m_mapAck;
+
+    // Bike information
+    enum DiagState { DiagIdle, DiagStarting, DiagReading, DiagEnding };
+    DiagState m_diagState = DiagIdle;
+    QTimer m_diagTimer;
+    QElapsedTimer m_diagSince;
+    QVariantMap m_info;
 
     // The pretend bike
     bool m_demo = false;

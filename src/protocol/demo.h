@@ -26,6 +26,8 @@ Bytes encodeAssistRange(int min, int max, int current);
 // A motor-map reply of an X35-type bike: no curve points (power bytes 255), the percentage in byte 17.
 Bytes encodeMapPercent(char op, int map, int percent);
 Bytes encodeMapAck(bool ok);
+Bytes encodeDiagAck(char sub, bool ok);   // $d$I#OK#@ / $d$E#OK#@
+Bytes encodeDiagData(char device, int type, const std::string &data);
 
 class Bike
 {
@@ -60,6 +62,7 @@ private:
     double m_riderW = 0;
     double m_currentA = 0;
     bool m_light = false;
+    bool m_diag = false;
     int m_maps[3] = { 40, 70, 90 };
 };
 

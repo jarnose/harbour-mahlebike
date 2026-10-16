@@ -124,11 +124,39 @@ static void maps()
     CHECK_EQ(p.lastMapAck(), std::string("ER"));
 }
 
+static void diagnosis()
+{
+    Demo::Bike bike;
+    Parser p;
+    // Without a session the bike refuses.
+    for (const Bytes &f : bike.receive(cmdDiagRead('0')))
+        p.feed(f);
+    CHECK(p.diag().size() == 1 && p.diag()[0].error);
+    p.clearDiag();
+
+    for (const Bytes &f : bike.receive(cmdDiagInit()))
+        CHECK(p.feed(f) == Kind::DiagInitAck);
+    CHECK_EQ(p.diagInit(), 1);
+    for (const Bytes &f : bike.receive(cmdDiagRead('0')))
+        CHECK(p.feed(f) == Kind::DiagData);
+    CHECK_EQ(p.diag().size(), size_t(8)); // four components, serial and firmware each
+    CHECK_EQ(p.diag()[0].device, '2');
+    CHECK_EQ(p.diag()[1].text(), std::string("2.4.1"));
+    p.clearDiag();
+    for (const Bytes &f : bike.receive(cmdDiagRead('5')))
+        p.feed(f);
+    CHECK_EQ(p.diag().size(), size_t(2));
+    for (const Bytes &f : bike.receive(cmdDiagEnd()))
+        CHECK(p.feed(f) == Kind::DiagEndAck);
+    CHECK_EQ(p.diagEnd(), 1);
+}
+
 int main()
 {
     encoders();
     ride();
     commands();
     maps();
+    diagnosis();
     return finish("demo");
 }

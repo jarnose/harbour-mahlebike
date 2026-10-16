@@ -31,6 +31,27 @@ Other services in the APK that this app does not touch: `FE59` (Nordic DFU, firm
 The official app's scan filter (`FactoryBleFilter`) accepts a device when it advertises `FFE0` **or** its
 MAC address begins with `00:1E:C0` or `D8:80:39`. Advertised names are `iWoc…` (X25, X35+) and `HUS…` (X20).
 
+### Reading the components (the "eBike information" screen)
+
+Battery, motor, trip and fault data arrive by themselves in the broadcast frames. Serial numbers, firmware
+versions, coding and status per component have to be asked for with a diagnosis session
+(`DiagnosisInitRequestCmd`, `DiagnosisReadUnitRequestCmd`, `DiagnosisEndRequestCmd`):
+
+| Bytes | Meaning |
+|---|---|
+| `$D$I#@` | start; answer `$d$I#OK#@` (or `ER`) |
+| `$D$R#<c>#@` | read; `c` is `0` all, `1` joystick, `2` display, `3` tracker, `4` controller, `5` battery, `6` motor, `7` range extender, `8` radar, `D` internal HMI |
+| `$d$R#<c><t>#<data>#@` | one answer per component and data type; `t` is 1 serial, 2 firmware, 3 coding, 4 status, 5 VIN. The official app shows a serial as upper-case hex of the bytes. A refusal is `$d$R#<c><t>ER#@`. |
+| `$D$E#@` | end; answer `$d$E#OK#@` |
+
+The official app waits 6.5 s for "all", 5 s for one component, and does this inside its secure-and-diagnosis
+use case, which bonds first. Model names ("Battery model", "Motor model") are not in these frames; they come
+from Mahle's cloud. **Unverified:** whether an unbonded link is answered; the layout above is from the SDK's
+parsers (the answer is `String(bytes, 5, 1)` device, `String(bytes, 6, 1)` type, data from byte 8 to the
+terminator). The app's "Bike information" page only reads: it checks the bike is standing, starts the session,
+asks for `0`, waits until the answers stop (2 s quiet, 12 s at most), and always ends the session, also after
+an error.
+
 ### Bonding
 
 Normal monitoring does not need it: the integration connects and subscribes without pairing. The official

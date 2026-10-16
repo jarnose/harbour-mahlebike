@@ -410,6 +410,49 @@ static void motorMaps()
     CHECK(Parser().feed(bad) == Kind::Unknown);
 }
 
+static void diagnosis()
+{
+    CHECK_EQ(str(cmdDiagInit()), std::string("$D$I#@"));
+    CHECK_EQ(str(cmdDiagRead('0')), std::string("$D$R#0#@"));
+    CHECK_EQ(str(cmdDiagRead('D')), std::string("$D$R#D#@"));
+    CHECK_EQ(str(cmdDiagEnd()), std::string("$D$E#@"));
+
+    Parser p;
+    CHECK(p.diagInit() == -1);
+    CHECK(p.feed(Bytes{ '$', 'd', '$', 'I', '#', 'O', 'K', '#', '@' }) == Kind::DiagInitAck);
+    CHECK_EQ(p.diagInit(), 1);
+    CHECK(p.feed(Bytes{ '$', 'd', '$', 'I', '#', 'E', 'R', '#', '@' }) == Kind::DiagInitAck);
+    CHECK_EQ(p.diagInit(), 0);
+    CHECK(p.feed(Bytes{ '$', 'd', '$', 'E', '#', 'O', 'K', '#', '@' }) == Kind::DiagEndAck);
+    CHECK_EQ(p.diagEnd(), 1);
+
+    // A text datum, a binary one, a refusal.
+    const std::string fw = "$d$R#52#1.9.2#@";
+    CHECK(p.feed(Bytes(fw.begin(), fw.end())) == Kind::DiagData);
+    CHECK_EQ(p.diag().size(), size_t(1));
+    CHECK_EQ(p.diag()[0].device, '5');
+    CHECK_EQ(p.diag()[0].type, 2);
+    CHECK_EQ(p.diag()[0].text(), std::string("1.9.2"));
+    CHECK_EQ(std::string(diagDeviceName('5')), std::string("battery"));
+    CHECK_EQ(std::string(diagTypeName(2)), std::string("firmware"));
+
+    Bytes bin = { '$', 'd', '$', 'R', '#', '6', '1', '#', 0x01, 0xab, 0x00, '#', '@' };
+    CHECK(p.feed(bin) == Kind::DiagData);
+    CHECK_EQ(p.diag()[1].text(), std::string("01AB00"));
+    const std::string er = "$d$R#41ER#@";
+    CHECK(p.feed(Bytes(er.begin(), er.end())) == Kind::DiagData);
+    CHECK(p.diag()[2].error);
+
+    // A serial number longer than a notification arrives in two.
+    const std::string sn = "$d$R#41#WMH12345678901234#@";
+    Parser q;
+    CHECK(q.feed(Bytes(sn.begin(), sn.begin() + 20)) == Kind::Partial);
+    CHECK(q.feed(Bytes(sn.begin() + 20, sn.end())) == Kind::DiagData);
+    CHECK_EQ(q.diag()[0].text(), std::string("WMH12345678901234"));
+    q.clearDiag();
+    CHECK(q.diag().empty() && q.diagInit() == -1);
+}
+
 static void noise()
 {
     Parser p;
@@ -418,7 +461,6 @@ static void noise()
     CHECK(p.feed(fromHex("2462245a2301")) == Kind::Unknown);       // no terminator
     CHECK(p.feed(fromHex("2462245a232340")) == Kind::Unknown);     // too short for a battery
     CHECK(p.feed(fromHex("2442245a2340")) == Kind::Unknown);       // unknown type
-    CHECK(p.feed(fromHex("24642449" "23" "2340")) == Kind::Other); // $d$I: diagnosis, not decoded
     CHECK(p.feed(fromHex("24622450" "23" "2340")) == Kind::Other); // $b$P: power source, not a battery
     CHECK(!p.battery().has_value());
     CHECK_EQ(printable(fromHex("24ff00")), std::string("$\\xff\\x00"));
@@ -440,6 +482,7 @@ int main()
     ebmLayoutBeforeTheHandshake();
     assist();
     motorMaps();
+    diagnosis();
     vin();
     noise();
     return finish("mahle");

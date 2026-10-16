@@ -183,6 +183,13 @@ class App(QObject):
                          writable=True, whyNot="", message="Maps read", maps=[dict(map=1, percent=40, isPercent=True),
                          dict(map=2, percent=70, isPercent=True), dict(map=3, percent=90, isPercent=True)],
                          previous=[30, 42, 65], original=[40, 70, 90])), constant=True)
+    bikeInfo = Property("QVariantMap", lambda s: s.s.get("bikeInfo", dict(state="idle", message="Read", readAtMs=1760600000000,
+                        devices=[dict(code="2", name="Display", items=[dict(type=1, name="Serial number", text="DISPLAY00012345", error=False),
+                                                                       dict(type=2, name="Firmware", text="2.4.1", error=False)]),
+                                 dict(code="5", name="Battery", items=[dict(type=1, name="Serial number", text="01AB00", error=False),
+                                                                       dict(type=4, name="Status", text="", error=True)])])), constant=True)
+    @Slot()
+    def readBikeInfo(self): pass
     @Slot()
     def readMotorMaps(self): pass
     @Slot("QVariantList", result=bool)
@@ -267,6 +274,9 @@ CASES = [
     ("maps_busy", "pages/MotorMapsPage.qml", {"motorMaps": dict(state="writing", known=True, percentLayout=True, writable=False,
                   whyNot="Working…", message="Writing…", maps=[dict(map=1, percent=40, isPercent=True),
                   dict(map=2, percent=70, isPercent=True), dict(map=3, percent=90, isPercent=True)], previous=[], original=[])}, {"_tall": True}),
+    ("info", "pages/BikeInfoPage.qml", {}, {"_tall": True}),
+    ("info_empty", "pages/BikeInfoPage.qml", {"bikeInfo": dict(state="idle")}, {}),
+    ("info_busy", "pages/BikeInfoPage.qml", {"bikeInfo": dict(state="reading", message="Reading…", rawCount=3)}, {}),
     ("bikes", "pages/BikesPage.qml", {"scanning": True}, {}),
     ("rides", "pages/RidesPage.qml", {}, {}),
     ("rides_empty", "pages/RidesPage.qml", {"rideCount": 0}, {}),

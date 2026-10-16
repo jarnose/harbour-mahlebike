@@ -144,6 +144,55 @@ Bytes cmdProtocol() { return text("$S$P#@"); }
 Bytes cmdAssistSet(int level) { return text("$M$A#" + std::to_string(level) + "#@"); }
 Bytes cmdResetTrip() { return text("$M$R#@"); }
 
+Bytes cmdDiagInit() { return text("$D$I#@"); }
+Bytes cmdDiagRead(char device) { return text(std::string("$D$R#") + device + "#@"); }
+Bytes cmdDiagEnd() { return text("$D$E#@"); }
+
+std::string DiagEntry::text() const
+{
+    bool printable = !data.empty();
+    for (uint8_t b : data)
+        if (b < 0x20 || b >= 0x7f)
+            printable = false;
+    if (printable)
+        return std::string(data.begin(), data.end());
+    static const char *digits = "0123456789ABCDEF";
+    std::string out;
+    for (uint8_t b : data) {
+        out += digits[b >> 4];
+        out += digits[b & 15];
+    }
+    return out;
+}
+
+const char *diagDeviceName(char device)
+{
+    switch (device) {
+    case '1': return "joystick";
+    case '2': return "display";
+    case '3': return "tracker";
+    case '4': return "controller";
+    case '5': return "battery";
+    case '6': return "motor";
+    case '7': return "range extender";
+    case '8': return "radar";
+    case 'D': return "internal HMI";
+    default: return "";
+    }
+}
+
+const char *diagTypeName(int type)
+{
+    switch (type) {
+    case 1: return "serial";
+    case 2: return "firmware";
+    case 3: return "coding";
+    case 4: return "status";
+    case 5: return "vin";
+    default: return "";
+    }
+}
+
 Bytes cmdSetClock(int hour, int minute)
 {
     char buf[16];
@@ -191,6 +240,9 @@ const char *kindName(Kind k)
     case Kind::Ebm: return "ebm";
     case Kind::Assist: return "assist";
     case Kind::MapData: return "map";
+    case Kind::DiagInitAck: return "diag-init";
+    case Kind::DiagEndAck: return "diag-end";
+    case Kind::DiagData: return "diag";
     case Kind::MapAck: return "map-ack";
     case Kind::AssistAck: return "assist-ack";
     case Kind::Vin: return "vin";
@@ -256,14 +308,14 @@ Kind Parser::feed(const uint8_t *data, size_t size)
                 whole.swap(m_pending);
                 return dispatch(whole);
             }
-            if (m_pending.size() > 64)
+            if (m_pending.size() > 96)
                 m_pending.clear();
             return Kind::Partial;
         }
     }
 
     // A text reply cut short by the link's payload size.
-    if ((startsWith(chunk, "$s$V#") || startsWith(chunk, "$s$P#")) && !endsWithTerminator(chunk)) {
+    if ((startsWith(chunk, "$s$V#") || startsWith(chunk, "$s$P#") || startsWith(chunk, "$d$R#")) && !endsWithTerminator(chunk)) {
         m_pending = chunk;
         return Kind::Partial;
     }
@@ -372,7 +424,34 @@ Kind Parser::dispatch(const Bytes &f)
             return Kind::ProtocolReply;
         }
         return Kind::Other; // blinking lights ($s$L), clock ack ($s$T)
-    case 'd': case 'f': case 'i': case 'M':
+    case 'd':
+        if (h.sub == 'I' || h.sub == 'E') {
+            // "$d$I#OK#@" / "$d$E#OK#@": the answer is the two characters at 5..6.
+            if (f.size() != 9)
+                return Kind::Unknown;
+            const bool ok = f[5] == 'O' && f[6] == 'K';
+            (h.sub == 'I' ? m_diagInit : m_diagEnd) = ok ? 1 : 0;
+            return h.sub == 'I' ? Kind::DiagInitAck : Kind::DiagEndAck;
+        }
+        if (h.sub == 'R') {
+            // "$d$R#<device><type>#<data>#@"; a refusal has "ER" from byte 7 on.
+            if (f.size() < 9)
+                return Kind::Unknown;
+            DiagEntry e;
+            e.device = static_cast<char>(f[5]);
+            if (f[6] < '0' || f[6] > '9')
+                return Kind::Unknown;
+            e.type = f[6] - '0';
+            if (f.size() == 11 && f[7] == 'E' && f[8] == 'R') {
+                e.error = true;
+            } else if (f.size() > 10) {
+                e.data.assign(f.begin() + 8, f.end() - 2);
+            }
+            m_diag.push_back(e);
+            return Kind::DiagData;
+        }
+        return Kind::Other;
+    case 'f': case 'i': case 'M':
         return Kind::Other;
     default:
         return Kind::Unknown;

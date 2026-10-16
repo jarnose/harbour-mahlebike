@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGeoPositionInfoSource>
+#include <QJsonDocument>
 #include <QStandardPaths>
 #include <QTextStream>
 
@@ -28,6 +29,11 @@ constexpr int kMapAckTimeoutMs = 5000;     // the official app waits 5 s for a w
 constexpr int kMapWriteTries = 3;
 constexpr int kMapMinPercent = 30;         // the official app warns below this
 constexpr double kMapStandstillKmh = 1.0;
+constexpr int kDiagStartTimeoutMs = 3500;
+constexpr int kDiagFirstFrameTimeoutMs = 6500; // the official app waits this long for "all devices"
+constexpr int kDiagQuietMs = 2000;             // after the last answer
+constexpr int kDiagMaxReadMs = 12000;
+constexpr int kDiagEndTimeoutMs = 2500;
 // A bike that is off is looked for ever less often: every 30 s, then once a minute.
 const int kRetryDelaysS[] = { 3, 5, 10, 20, 30, 30, 30, 60 };
 constexpr int kSilentHintAfterS = 12;   // connected, but not one data frame yet
@@ -74,6 +80,7 @@ AppController::AppController(QObject *parent)
     else
         m_store.recoverUnfinished();
     refreshRides();
+    diagLoad();
 
     connect(&m_link, &BikeLink::opened, this, &AppController::onOpened);
     connect(&m_link, &BikeLink::failed, this, &AppController::onFailed);
@@ -104,6 +111,9 @@ AppController::AppController(QObject *parent)
     m_liveTimer.setSingleShot(true);
     m_liveTimer.setInterval(kLiveIntervalMs);
     connect(&m_liveTimer, &QTimer::timeout, this, &AppController::publishLive);
+
+    m_diagTimer.setSingleShot(true);
+    connect(&m_diagTimer, &QTimer::timeout, this, &AppController::diagOnTimeout);
 
     m_mapTimer.setSingleShot(true);
     connect(&m_mapTimer, &QTimer::timeout, this, &AppController::mapsOnTimeout);
@@ -431,6 +441,7 @@ void AppController::selectBike(const QString &address, const QString &name)
     saveSetting(QStringLiteral("bike/vin"), m_vin);
     saveSetting(QStringLiteral("bike/protocol"), m_protocolVersion);
     m_bikes.setSelectedAddress(m_bikeAddress);
+    diagLoad();
     emit bikeChanged();
     logEvent(tr("Bike chosen: %1 (%2)").arg(name, address));
     stopScan();
@@ -478,6 +489,7 @@ void AppController::disconnectNow()
     m_pendingAssist = -1;
     m_scanner.stopDiscovery();
     mapsReset();
+    diagReset();
     m_link.close(true);
     m_gotFrame = false;
     setLink(0, hasBike() ? tr("Disconnected") : tr("No bike chosen"));
@@ -539,6 +551,7 @@ void AppController::scheduleRetry(const QString &because)
 void AppController::onOpened()
 {
     mapsReset();
+    diagReset();
     m_assistCap = -1;
     m_attempt = 0;
     m_gotFrame = false;
@@ -554,6 +567,7 @@ void AppController::onOpened()
 void AppController::onFailed(const QString &text)
 {
     mapsReset();
+    diagReset();
     logEvent(text);
     m_gotFrame = false;
     scheduleRetry(text);
@@ -562,6 +576,7 @@ void AppController::onFailed(const QString &text)
 void AppController::onLost()
 {
     mapsReset();
+    diagReset();
     logEvent(tr("The bike disconnected"));
     m_gotFrame = false;
     m_pendingAssist = -1;
@@ -643,6 +658,7 @@ void AppController::startDemo()
     m_live.clear();
     m_demo = true;
     mapsReset();
+    diagReset();
     m_demoBike = Mahle::Demo::Bike();
     m_gotFrame = false;
     m_framesSinceOpen = 0;
@@ -754,6 +770,24 @@ void AppController::handleFrame(const QByteArray &data)
     }
     if (bikeChangedNow)
         emit bikeChanged();
+
+    if (kind == Mahle::Kind::DiagInitAck && m_diagState == DiagStarting) {
+        if (m_parser.diagInit() == 1) {
+            m_diagState = DiagReading;
+            m_diagSince.restart();
+            diagPublish(tr("Reading…"));
+            m_diagTimer.start(kDiagFirstFrameTimeoutMs);
+            sendCommand(Mahle::cmdDiagRead('0'), "diag-read", true);
+        } else {
+            diagAbort(tr("The bike refused the diagnosis session"));
+        }
+    } else if (kind == Mahle::Kind::DiagData && m_diagState == DiagReading) {
+        // Every answer restarts a short quiet window; the session ends once the bike has said it all.
+        m_diagTimer.start(m_diagSince.elapsed() > kDiagMaxReadMs ? 1 : kDiagQuietMs);
+        diagPublish();
+    } else if (kind == Mahle::Kind::DiagEndAck && m_diagState == DiagEnding) {
+        diagFinish();
+    }
 
     if (kind == Mahle::Kind::MapData) {
         // A bike that answers a write with the map itself instead of an OK counts as accepting it.
@@ -960,6 +994,170 @@ bool AppController::syncClock()
     logEvent(tr("Clock set to %1").arg(now.toString(QStringLiteral("HH:mm"))));
     emit message(tr("Bike clock set to %1").arg(now.toString(QStringLiteral("HH:mm"))));
     return true;
+}
+
+// ---- bike information ------------------------------------------------------------------------
+
+namespace {
+
+QString diagDeviceLabel(char code)
+{
+    switch (code) {
+    case '1': return AppController::tr("Joystick");
+    case '2': return AppController::tr("Display");
+    case '3': return AppController::tr("Tracker");
+    case '4': return AppController::tr("Controller");
+    case '5': return AppController::tr("Battery");
+    case '6': return AppController::tr("Motor");
+    case '7': return AppController::tr("Range extender");
+    case '8': return AppController::tr("Radar");
+    case 'D': return AppController::tr("Internal HMI");
+    default: return AppController::tr("Component %1").arg(QChar::fromLatin1(code));
+    }
+}
+
+QString diagTypeLabel(int type)
+{
+    switch (type) {
+    case 1: return AppController::tr("Serial number");
+    case 2: return AppController::tr("Firmware");
+    case 3: return AppController::tr("Coding");
+    case 4: return AppController::tr("Status");
+    case 5: return AppController::tr("VIN");
+    default: return AppController::tr("Data %1").arg(type);
+    }
+}
+
+} // namespace
+
+void AppController::diagReset()
+{
+    m_diagTimer.stop();
+    m_diagState = DiagIdle;
+}
+
+void AppController::diagLoad()
+{
+    m_info.clear();
+    const QString key = QStringLiteral("info/%1").arg(m_bikeAddress.isEmpty() ? QStringLiteral("demo") : m_bikeAddress);
+    const QByteArray json = m_settings->value(key).toByteArray();
+    if (!json.isEmpty())
+        m_info = QJsonDocument::fromJson(json).toVariant().toMap();
+    m_info.insert(QStringLiteral("state"), QStringLiteral("idle"));
+    emit bikeInfoChanged();
+}
+
+void AppController::diagPublish(const QString &message)
+{
+    static const char *const states[] = { "idle", "starting", "reading", "ending" };
+    QVariantMap info = m_info;
+    info.insert(QStringLiteral("state"), QLatin1String(states[m_diagState]));
+    if (!message.isEmpty())
+        info.insert(QStringLiteral("message"), message);
+    // While a read is under way the answers so far are shown; the saved result stays until a new one
+    // has been completed.
+    if (m_diagState != DiagIdle || !message.isEmpty()) {
+        info.insert(QStringLiteral("rawCount"), int(m_parser.diag().size()));
+    }
+    m_info = info;
+    emit bikeInfoChanged();
+}
+
+void AppController::readBikeInfo()
+{
+    if (!linkOpen()) {
+        emit message(tr("Not connected to the bike"));
+        return;
+    }
+    if (m_diagState != DiagIdle)
+        return;
+    const auto &motor = m_parser.motor();
+    if (motor && fresh(3000) && motor->speedKmh >= kMapStandstillKmh) {
+        emit message(tr("Stop the bike first"));
+        return;
+    }
+    m_parser.clearDiag();
+    m_diagState = DiagStarting;
+    logEvent(tr("Reading the bike's information"));
+    diagPublish(tr("Starting…"));
+    m_diagTimer.start(kDiagStartTimeoutMs);
+    if (!sendCommand(Mahle::cmdDiagInit(), "diag-init", true))
+        diagAbort(tr("Could not reach the bike"));
+}
+
+void AppController::diagAbort(const QString &why)
+{
+    const bool needEnd = m_diagState != DiagIdle && m_diagState != DiagEnding;
+    m_diagTimer.stop();
+    m_diagState = DiagIdle;
+    logEvent(why);
+    // A session that was opened has to be closed, or the bike may keep waiting for it.
+    if (needEnd && linkOpen())
+        sendCommand(Mahle::cmdDiagEnd(), "diag-end", true);
+    diagPublish(why);
+    emit message(why);
+}
+
+void AppController::diagStartEnding()
+{
+    m_diagState = DiagEnding;
+    diagPublish(tr("Ending the session…"));
+    m_diagTimer.start(kDiagEndTimeoutMs);
+    if (!sendCommand(Mahle::cmdDiagEnd(), "diag-end", true))
+        diagFinish();
+}
+
+void AppController::diagOnTimeout()
+{
+    switch (m_diagState) {
+    case DiagStarting:
+        diagAbort(tr("The bike did not start the diagnosis. It may need to be paired first."));
+        break;
+    case DiagReading:
+        diagStartEnding();
+        break;
+    case DiagEnding:
+        logEvent(tr("The bike did not acknowledge the end of the session"));
+        diagFinish();
+        break;
+    default:
+        break;
+    }
+}
+
+void AppController::diagFinish()
+{
+    m_diagTimer.stop();
+    m_diagState = DiagIdle;
+
+    // Group the answers by component, in the order of the component codes.
+    QMap<char, QVariantList> byDevice;
+    for (const Mahle::DiagEntry &e : m_parser.diag()) {
+        QVariantMap item;
+        item.insert(QStringLiteral("type"), e.type);
+        item.insert(QStringLiteral("name"), diagTypeLabel(e.type));
+        item.insert(QStringLiteral("text"), QString::fromStdString(e.text()));
+        item.insert(QStringLiteral("error"), e.error);
+        byDevice[e.device].append(item);
+    }
+    QVariantList devices;
+    for (auto it = byDevice.constBegin(); it != byDevice.constEnd(); ++it) {
+        QVariantMap dev;
+        dev.insert(QStringLiteral("code"), QString(QChar::fromLatin1(it.key())));
+        dev.insert(QStringLiteral("name"), diagDeviceLabel(it.key()));
+        dev.insert(QStringLiteral("items"), it.value());
+        devices.append(dev);
+    }
+    QVariantMap info;
+    info.insert(QStringLiteral("devices"), devices);
+    info.insert(QStringLiteral("readAtMs"), QDateTime::currentMSecsSinceEpoch());
+    if (!m_demo) {
+        const QString key = QStringLiteral("info/%1").arg(m_bikeAddress);
+        saveSetting(key, QJsonDocument::fromVariant(info).toJson(QJsonDocument::Compact));
+    }
+    m_info = info;
+    logEvent(tr("Bike information: %1 answers from %2 components").arg(int(m_parser.diag().size())).arg(devices.size()));
+    diagPublish(devices.isEmpty() ? tr("The bike did not answer. It may need to be paired first.") : tr("Read"));
 }
 
 // ---- motor maps ------------------------------------------------------------------------------

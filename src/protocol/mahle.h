@@ -59,6 +59,14 @@ Bytes cmdProtocol();                  // $S$P#@
 Bytes cmdAssistSet(int level);
 Bytes cmdResetTrip();                 // $M$R#@
 
+// The diagnosis session of the official app's "eBike information" screen, read-only: start it, ask the
+// bike for the serial numbers / firmware versions of its components, end it. `device` is one of
+// "0" all, "1" joystick, "2" display, "3" tracker, "4" controller, "5" battery, "6" motor, "7" range
+// extender, "8" radar, "D" internal HMI. An open session has to be ended.
+Bytes cmdDiagInit();                  // $D$I#@  -> $d$I#OK#@
+Bytes cmdDiagRead(char device);       // $D$R#<device>#@
+Bytes cmdDiagEnd();                   // $D$E#@  -> $d$E#OK#@
+
 // Motor maps ("Eco", "Sport" ...). On an X35-type bike there is one map per assist level 1..3 and each is
 // a single power percentage. Both commands are 20 bytes: "$M$M#" + R or W + the map number as a digit,
 // ten zero bytes, a value byte (zero in a read) and "#@". A read of map 0 makes the bike send every
@@ -132,6 +140,21 @@ struct MapEntry
     bool isPercent() const { return points.empty(); }
 };
 
+// One answer of a diagnosis read.
+struct DiagEntry
+{
+    char device = 0;       // see cmdDiagRead
+    int type = 0;          // 1 serial, 2 firmware, 3 coding, 4 status, 5 VIN
+    bool error = false;    // the bike answered ER
+    Bytes data;
+    // The data as text when it is printable, otherwise as upper-case hex (the official app shows a
+    // serial number that way).
+    std::string text() const;
+};
+
+const char *diagDeviceName(char device);   // "battery", "motor", ... , "" when unknown
+const char *diagTypeName(int type);        // "serial", "firmware", "coding", "status", "vin", ""
+
 struct AssistRange
 {
     int min = 0;
@@ -146,6 +169,9 @@ enum class Kind {
     Motor,
     Ebm,
     Assist,       // $m$A#<min><max><cur>#@
+    DiagInitAck,  // $d$I#OK#@ (or ER)
+    DiagEndAck,   // $d$E#OK#@ (or ER)
+    DiagData,     // $d$R#<device><type>#<data>#@: one datum of one component
     MapData,      // $m$M#: one motor map
     MapAck,       // $m$M#OK#@ or $m$M#ER#@
     AssistAck,    // $m$A#OK#@ (or another word: see ackOk)
@@ -189,6 +215,13 @@ public:
     // The last $m$A#xx#@ acknowledgement, empty until one arrives.
     const std::string &lastAck() const { return m_lastAck; }
 
+    // Diagnosis answers received since the last clearDiag(), and whether the session's start / end were
+    // acknowledged (-1 not yet, 1 OK, 0 refused).
+    const std::vector<DiagEntry> &diag() const { return m_diag; }
+    void clearDiag() { m_diag.clear(); m_diagInit = -1; m_diagEnd = -1; }
+    int diagInit() const { return m_diagInit; }
+    int diagEnd() const { return m_diagEnd; }
+
     // Motor maps received since the last clearMaps(), by map number.
     const std::map<int, MapEntry> &maps() const { return m_maps; }
     void clearMaps() { m_maps.clear(); m_lastMapAck.clear(); }
@@ -221,6 +254,9 @@ private:
     std::optional<AssistRange> m_assist;
     std::string m_lastAck;
     std::map<int, MapEntry> m_maps;
+    std::vector<DiagEntry> m_diag;
+    int m_diagInit = -1;
+    int m_diagEnd = -1;
     std::string m_lastMapAck;
     int m_primaryRun = 0;
     bool m_secondBatteryAlive = false;
