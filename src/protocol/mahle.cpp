@@ -1,6 +1,7 @@
 #include "protocol/mahle.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstring>
 
@@ -328,6 +329,15 @@ Kind Parser::dispatch(const Bytes &f)
     if (f.size() == 20 && f[0] == 'R' && f[1] == '0' && f.back() == '@') {
         m_vin.assign(f.begin() + 2, f.end() - 1);
         return Kind::Vin;
+    }
+    // "R<component><VIN>@": the VIN as one component stores it, an answer of a diagnosis read (type 5).
+    if (f.size() == 20 && f[0] == 'R' && f[1] != '0' && f.back() == '@' && std::isalnum(f[1])) {
+        DiagEntry e;
+        e.device = static_cast<char>(f[1]);
+        e.type = 5;
+        e.data.assign(f.begin() + 2, f.end() - 1);
+        m_diag.push_back(e);
+        return Kind::DiagData;
     }
     if (f.size() < 6 || f[0] != '$' || !endsWithTerminator(f))
         return Kind::Unknown;

@@ -451,6 +451,14 @@ static void diagnosis()
     CHECK_EQ(q.diag()[0].text(), std::string("WMH12345678901234"));
     q.clearDiag();
     CHECK(q.diag().empty() && q.diagInit() == -1);
+
+    // A component's VIN comes as "R<component><VIN>@"; "R0" stays the bike's own VIN.
+    const std::string cv = "R4WMH12345678901234@";
+    CHECK(q.feed(Bytes(cv.begin(), cv.end())) == Kind::DiagData);
+    CHECK_EQ(q.diag()[0].device, '4');
+    CHECK_EQ(q.diag()[0].type, 5);
+    CHECK_EQ(q.diag()[0].text(), std::string("WMH12345678901234"));
+    CHECK(q.vin().empty());
 }
 
 static void noise()

@@ -44,6 +44,12 @@ versions, coding and status per component have to be asked for with a diagnosis 
 | `$d$R#<c><t>#<data>#@` | one answer per component and data type; `t` is 1 serial, 2 firmware, 3 coding, 4 status, 5 VIN. The official app shows a serial as upper-case hex of the bytes. A refusal is `$d$R#<c><t>ER#@`. |
 | `$D$E#@` | end; answer `$d$E#OK#@` |
 
+**Seen on the iWoc8910 (the answer to `$D$R#0#@`, 12 frames from the joystick `1`, controller `4` and battery `5`, nothing from
+the display, the pedal sensor or the motor):** the serial (`1`) is `"EM"` plus eight binary bytes, so it is shown as hex; the firmware (`2`) is a short
+string (`iM3EM128`, `4107`, `54`); `3` and `4` are `07AF3405` / `0000` and `000`; and the VIN (`5`) is *not* a `$d$R#` frame but the
+20-byte `R<component><VIN>@`. Broadcasts continue during the session, and a session needs no pairing. The first request after a
+reconnect went unanswered once, together with a map read, while the link was weak.
+
 The official app waits 6.5 s for "all", 5 s for one component, and does this inside its secure-and-diagnosis
 use case, which bonds first. Model names ("Battery model", "Motor model") are not in these frames; they come
 from Mahle's cloud. **Unverified:** whether an unbonded link is answered; the layout above is from the SDK's

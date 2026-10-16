@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Bike information: the component VINs (`R<component><VIN>@`) are recognised instead of being logged as unknown
+  frames. Confirmed on the iWoc8910 that the diagnosis session works on an unpaired link.
+
 ## 1.0.0
 
 First public release. Everything in 0.1.0 to 0.3.0, tried on one bike (an iWoc8910, ebikemotion X35 type):
