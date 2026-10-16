@@ -1,0 +1,24 @@
+build/
+*.user
+.qmake.stash
+.directory
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+bin/
+*.qm
+
+# Captures from a real bike carry the VIN and your own position.
+captures/
+tests/fixtures/
+
+__pycache__/
+
+# An in-source sfdk build leaves these behind.
+RPMS/
+QtCreatorDeployment.txt
+documentation.list
+install_manifest.txt
+/harbour-mahlebike
+*_autogen/

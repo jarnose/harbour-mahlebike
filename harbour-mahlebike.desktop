@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Icon=harbour-mahlebike
+Exec=harbour-mahlebike
+Name=Mahle Bike
+
+[X-Sailjail]
+OrganizationName=io.github.jarnose
+ApplicationName=mahlebike
+# Bluetooth: the bike, through BlueZ over the system bus.
+# Location: the phone's GPS track of a recorded ride, only while a ride is being recorded and only
+# when "Record the route with GPS" is on in Settings.
+# Documents: rides exported as GPX or CSV are written to ~/Documents/MahleBike.
+# No Internet permission: the app never uses the network.
+Permissions=Bluetooth;Location;Documents
