@@ -168,7 +168,13 @@ QString AppController::vin() const
 
 QString AppController::protocolVersion() const
 {
-    return m_demo ? QStringLiteral("1.02") : m_protocolVersion;
+    if (m_demo)
+        return QStringLiteral("1.02");
+    // An iWoc bike never answers the protocol request; its short frames (no MOSFET temperature in the
+    // battery frame) are the ebikemotion "EBM" layout, which the integration also falls back to.
+    if (m_protocolVersion.isEmpty() && m_gotFrame && m_parser.battery() && !m_parser.battery()->mosfetTemperature)
+        return tr("EBM (the bike does not answer)");
+    return m_protocolVersion;
 }
 
 QString AppController::appDataDir() const
@@ -533,6 +539,7 @@ void AppController::scheduleRetry(const QString &because)
 void AppController::onOpened()
 {
     mapsReset();
+    m_assistCap = -1;
     m_attempt = 0;
     m_gotFrame = false;
     m_framesSinceOpen = 0;
@@ -731,7 +738,19 @@ void AppController::handleFrame(const QByteArray &data)
         const auto &a = m_parser.assist();
         logEvent(tr("Assist levels %1 to %2, now %3").arg(a->min).arg(a->max).arg(a->current));
     } else if (kind == Mahle::Kind::AssistAck) {
-        logEvent(tr("Assist answer: %1").arg(QString::fromStdString(m_parser.lastAck())));
+        const QString answer = QString::fromStdString(m_parser.lastAck());
+        logEvent(tr("Assist answer: %1").arg(answer));
+        if (answer == QLatin1String("ER") && m_pendingAssist >= 0) {
+            // The bike refuses a level it does not have; the range it sends by itself may not have
+            // arrived yet. Remember the limit so the + button stops there.
+            const int refused = m_pendingAssist;
+            m_pendingAssist = -1;
+            m_assistCheck.stop();
+            const auto &motor = m_parser.motor();
+            if (motor && refused > motor->assistLevel)
+                m_assistCap = refused - 1;
+            emit message(tr("The bike does not have assist level %1").arg(refused));
+        }
     }
     if (bikeChangedNow)
         emit bikeChanged();
@@ -867,6 +886,8 @@ QVariantMap AppController::buildLive() const
     if (const auto &range = m_parser.assist()) {
         lo = range->min;
         hi = range->max;
+    } else if (m_assistCap >= 0) {
+        hi = m_assistCap;
     }
     m.insert(QStringLiteral("assistLow"), lo);
     m.insert(QStringLiteral("assistHigh"), hi);
@@ -891,6 +912,8 @@ bool AppController::setAssistLevel(int level)
     if (const auto &range = m_parser.assist()) {
         lo = range->min;
         hi = range->max;
+    } else if (m_assistCap >= 0) {
+        hi = m_assistCap;
     }
     if (level < lo || level > hi)
         return false;

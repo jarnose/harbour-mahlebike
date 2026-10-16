@@ -254,6 +254,7 @@ private:
     // Controls
     QElapsedTimer m_sinceCommand;
     int m_pendingAssist = -1;
+    int m_assistCap = -1;   // the highest level the bike accepted, learnt from a refusal; -1 = not known
     QTimer m_assistCheck;
 
     // Recorder

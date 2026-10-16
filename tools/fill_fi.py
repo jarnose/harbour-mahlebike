@@ -213,6 +213,8 @@ FI = {
 "Serial number": "Valmistenumero",
 "Protocol": "Protokolla",
 "Forgetting the bike": "Unohdetaan pyörä",
+"The bike does not have assist level %1": "Pyörällä ei ole tukitasoa %1",
+"EBM (the bike does not answer)": "EBM (pyörä ei vastaa kyselyyn)",
 "The bike accepted map %1": "Pyörä hyväksyi kartan %1",
 "The bike refused map %1 (%2)": "Pyörä hylkäsi kartan %1 (%2)",
 "Working…": "Työskennellään…",

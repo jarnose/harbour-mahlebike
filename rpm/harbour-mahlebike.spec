@@ -1,7 +1,7 @@
 Name:       harbour-mahlebike
 
 Summary:    Mahle Bike
-Version:    0.2.0
+Version:    0.2.1
 Release:    1
 License:    MIT
 URL:        https://github.com/jarnose/harbour-mahlebike

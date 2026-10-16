@@ -11,8 +11,9 @@ Sources, in order of weight:
    carry real frames from an Orbea Vibe, a Schindelhauer Arthur IX and an X20 (HUS) bike. Every vector in
    `tests/test_mahle.cpp` is one of those.
 
-**Tried on one bike so far: an `iWoc8910` (2026-10-16).** Connection, the data frames, the VIN and the assist
-level command work. Where a sentence below says *verified*, it means "the same in the SDK and in the
+**Tried on one bike so far: an `iWoc8910` (2026-10-16).** Connection, the data frames, the VIN, the assist level
+command and the motor maps (read, write, read back) work. Its frames are the short ebikemotion ones (battery 19 bytes,
+motor 18, ebm 17), it never answers `$S$P#@`, and its VIN comes in the `R0<VIN>@` spelling. Where a sentence below says *verified*, it means "the same in the SDK and in the
 integration", unless it says it was seen on the bike.
 
 ## GATT
@@ -68,7 +69,8 @@ likely cause. Unverified either way.)
 
 **Seen on the bike:** `$M$A#<level>#@` sets the target level (2, 3, 2, 1, 0, 1, 2, 1 in turn, each answered
 `$m$A#OK#@`), and the bike also sends `$m$A#031#@` (min 0, max 3, current) by itself about every 20 s, so the
-range is known without asking. That bike has levels 0 to 3. The rest of this section is the reasoning before
+range is known without asking. That bike has levels 0 to 3 and answers `$m$A#ER#@` to a level above that (the range
+frame can be 20 s away after a connect, so the app learns the limit from the refusal too). The rest of this section is the reasoning before
 that test.
 
 The official app's `+` and `−` buttons call `changeLevel(current ± 1)`, which reaches
@@ -143,9 +145,10 @@ M40 mid drive); **this app writes none of them**.
 How the app uses it: it reads first, and refuses to write unless it received exactly three maps, numbered one
 after another, all of the percentage kind, and the bike is standing still. Before writing it stores the
 values it had (`previous`, and `original` the first time ever), writes level by level waiting for each OK, reads
-everything back and compares (a 35 is expected to read back as 34). Unverified on a real bike when this was
-written: the exact reply layout (the 255 fill) and whether a read of map 0 returns three frames; if the bike
-does not, the app asks for maps 1, 2 and 3 one by one.
+everything back and compares (a 35 is expected to read back as 34). **Seen on the iWoc8910:** a read of map 0 gets three frames, `$m$M#W<n>` + 255 fill + percent (the reply always
+carries `W`, also to a read), followed by two stray `$m$M#OK#@`; a write gets its `OK` in about 100 ms, and one
+in three of the first tries lost its answer, which the retry covers. Eco, Dynamic and Sport were written and read
+back correctly. Asking for maps 1, 2, 3 one by one got no answer in the one try, which happened as the link dropped.
 
 ## Not in the bike at all
 

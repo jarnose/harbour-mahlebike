@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- A refused assist level (the bike has levels 0 to 3) now says so and stops the + button there, instead of
+  waiting for the bike's range frame.
+- Settings shows the protocol as "EBM" for a bike that never answers the protocol request.
+
 ## 0.2.0
 
 - Motor maps (Eco / Dynamic / Sport): reads the bike's maps, writes a preset or your own percentages for
