@@ -16,7 +16,7 @@ the route, and exports as **GPX** (the bike's readings as extensions) or CSV.
 Native C++/QML (Silica). No network permission, no account. Unofficial: not made, endorsed or supported by
 Mahle or any bike brand.
 
-## Status: works on one bike (iWoc8910)
+## Status: 1.0.0, works on one bike (iWoc8910)
 
 **2026-10-16, first try on a real bike (iWoc8910):** it connects, the numbers show, and the assist level
 can be changed (0 to 3 on that bike; every `$M$A#<level>#@` was answered `OK`). The bike never answered

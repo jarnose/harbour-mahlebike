@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0
+
+First public release. Everything in 0.1.0 to 0.3.0, tried on one bike (an iWoc8910, ebikemotion X35 type):
+connection and live data, assist level changes, motor maps (read, write, read back), rides. The bike information
+page (diagnosis session) and the GPS track / GPX export of a ride are written from the official app's code but not
+yet confirmed on a bike; other protocol generations (100, 102, 200, 300) are decoded from the integration's
+captures only. Reports with a frame capture (Settings > Diagnostics) are welcome.
+
 ## 0.3.0
 
 - "Bike information" page: the bike's own broadcast (VIN, capacity, charge cycles, odometer, assist levels)
