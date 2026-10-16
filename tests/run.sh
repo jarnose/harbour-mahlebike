@@ -20,3 +20,4 @@ run() {
 
 run mahle ../src/protocol/mahle.cpp
 run ride ../src/ride/ride.cpp
+run demo ../src/protocol/demo.cpp ../src/protocol/mahle.cpp

@@ -100,6 +100,9 @@ AppController::AppController(QObject *parent)
     m_liveTimer.setInterval(kLiveIntervalMs);
     connect(&m_liveTimer, &QTimer::timeout, this, &AppController::publishLive);
 
+    m_demoTimer.setInterval(1000);
+    connect(&m_demoTimer, &QTimer::timeout, this, &AppController::demoTick);
+
     m_assistCheck.setSingleShot(true);
     m_assistCheck.setInterval(kAssistVerifyMs);
     connect(&m_assistCheck, &QTimer::timeout, this, [this]() {
@@ -143,6 +146,21 @@ QString AppController::version() const
 #else
     return QStringLiteral("dev");
 #endif
+}
+
+QString AppController::bikeName() const
+{
+    return m_demo ? tr("Demo bike") : m_bikeName;
+}
+
+QString AppController::vin() const
+{
+    return m_demo ? QString::fromStdString(Mahle::Demo::Bike::vin()) : m_vin;
+}
+
+QString AppController::protocolVersion() const
+{
+    return m_demo ? QStringLiteral("1.02") : m_protocolVersion;
 }
 
 QString AppController::appDataDir() const
@@ -382,6 +400,8 @@ void AppController::onDeviceUpdated(const BikeScanner::Device &device)
 
 void AppController::selectBike(const QString &address, const QString &name)
 {
+    if (m_demo)
+        stopDemo();
     const bool changed = address.compare(m_bikeAddress, Qt::CaseInsensitive) != 0;
     m_bikeAddress = address;
     m_bikeName = name;
@@ -423,7 +443,9 @@ void AppController::forgetBike()
 
 void AppController::connectNow()
 {
-    if (!hasBike())
+    if (m_demo)
+        stopDemo();
+    if (m_bikeAddress.isEmpty())
         return;
     m_wantConnected = true;
     m_attempt = 0;
@@ -433,9 +455,14 @@ void AppController::connectNow()
 
 void AppController::disconnectNow()
 {
+    if (m_demo) {
+        stopDemo();
+        return;
+    }
     m_wantConnected = false;
     m_retry.stop();
     m_pendingAssist = -1;
+    m_scanner.stopDiscovery();
     m_link.close(true);
     m_gotFrame = false;
     setLink(0, hasBike() ? tr("Disconnected") : tr("No bike chosen"));
@@ -456,7 +483,7 @@ void AppController::pairBike(const QString &address)
 
 void AppController::tryConnect()
 {
-    if (!m_wantConnected || !hasBike())
+    if (!m_wantConnected || m_bikeAddress.isEmpty() || m_demo)
         return;
     if (m_link.state() != BikeLink::Closed)
         return;
@@ -465,6 +492,7 @@ void AppController::tryConnect()
         // BlueZ forgets an unpaired device a few minutes after it was last seen. Scanning brings it back.
         setLink(1, tr("Looking for the bike…"));
         m_scanner.startDiscovery();
+        ++m_attempt;
         scheduleRetry(tr("The bike is not visible to Bluetooth. Switch it on and keep it close."));
         return;
     }
@@ -479,6 +507,14 @@ void AppController::scheduleRetry(const QString &because)
 {
     if (!m_wantConnected)
         return;
+    // Without "connect automatically" a bike that cannot be reached is given up on after a few tries
+    // instead of being chased for ever.
+    if (!m_autoConnect && m_attempt >= 3) {
+        m_wantConnected = false;
+        m_scanner.stopDiscovery();
+        setLink(0, because);
+        return;
+    }
     const int index = std::min<int>(std::max(0, m_attempt - 1), int(sizeof kRetryDelaysS / sizeof kRetryDelaysS[0]) - 1);
     const int delay = kRetryDelaysS[index];
     setLink(0, because + QLatin1Char('\n') + tr("Trying again in %1 s").arg(delay));
@@ -513,6 +549,8 @@ void AppController::onLost()
     scheduleLive();
     // A bike that switches itself off (about five minutes after its last use) lands here.
     m_attempt = 0;
+    if (!m_autoConnect)
+        m_wantConnected = false;
     if (m_wantConnected)
         scheduleRetry(tr("The bike disconnected."));
     else
@@ -549,7 +587,7 @@ void AppController::handshake()
 
 bool AppController::sendCommand(const Mahle::Bytes &bytes, const char *what)
 {
-    if (!m_link.isOpen()) {
+    if (!linkOpen()) {
         emit message(tr("Not connected to the bike"));
         return false;
     }
@@ -558,6 +596,13 @@ bool AppController::sendCommand(const Mahle::Bytes &bytes, const char *what)
         return false;
     }
     const QByteArray data(reinterpret_cast<const char *>(bytes.data()), int(bytes.size()));
+    if (m_demo) {
+        m_sinceCommand.restart();
+        logFrame("->", data, what);
+        for (const Mahle::Bytes &reply : m_demoBike.receive(bytes))
+            handleFrame(QByteArray(reinterpret_cast<const char *>(reply.data()), int(reply.size())));
+        return true;
+    }
     if (!m_link.write(data)) {
         emit message(tr("Could not send to the bike"));
         return false;
@@ -565,6 +610,60 @@ bool AppController::sendCommand(const Mahle::Bytes &bytes, const char *what)
     m_sinceCommand.restart();
     logFrame("->", data, what);
     return true;
+}
+
+void AppController::startDemo()
+{
+    if (m_demo)
+        return;
+    m_wantConnected = false;
+    m_retry.stop();
+    m_scanner.stopDiscovery();
+    m_link.close(true);
+    m_parser.reset();
+    m_live.clear();
+    m_demo = true;
+    m_demoBike = Mahle::Demo::Bike();
+    m_gotFrame = false;
+    m_framesSinceOpen = 0;
+    m_broadcastShown = 0;
+    m_sinceFrame.invalidate();
+    logEvent(tr("Demo started: a pretend bike"));
+    setLink(2, tr("Demo: a pretend bike"));
+    emit bikeChanged();
+    // The handshake the real bike gets.
+    sendCommand(Mahle::cmdVin(), "vin?");
+    m_sinceCommand.invalidate();
+    sendCommand(Mahle::cmdProtocol(), "protocol?");
+    m_sinceCommand.invalidate();
+    m_demoTimer.start();
+    demoTick();
+}
+
+void AppController::stopDemo()
+{
+    if (!m_demo)
+        return;
+    m_demoTimer.stop();
+    if (recording())
+        stopRecording();
+    m_demo = false;
+    m_gotFrame = false;
+    m_pendingAssist = -1;
+    m_parser.reset();
+    m_parser.setProtocolVersion(m_protocolVersion.toStdString());
+    m_live.clear();
+    m_latest.clear();
+    logEvent(tr("Demo stopped"));
+    setLink(0, m_bikeAddress.isEmpty() ? tr("No bike chosen") : tr("Not connected"));
+    emit bikeChanged();
+    emit liveChanged();
+}
+
+void AppController::demoTick()
+{
+    for (const Mahle::Bytes &f : m_demoBike.step(1.0))
+        handleFrame(QByteArray(reinterpret_cast<const char *>(f.data()), int(f.size())));
 }
 
 // ---- frames ----------------------------------------------------------------------------------
@@ -577,6 +676,13 @@ void AppController::onButton(const QByteArray &data)
 
 void AppController::onFrame(const QByteArray &data)
 {
+    if (m_demo)
+        return; // a late frame of the real bike while the pretend one is on
+    handleFrame(data);
+}
+
+void AppController::handleFrame(const QByteArray &data)
+{
     const Mahle::Kind kind = m_parser.feed(reinterpret_cast<const uint8_t *>(data.constData()), size_t(data.size()));
     // Battery, motor and trip frames arrive several times a second; the log keeps the last ones only.
     logFrame("<-", data, Mahle::kindName(kind));
@@ -585,13 +691,13 @@ void AppController::onFrame(const QByteArray &data)
     m_sinceFrame.restart();
     if (!m_gotFrame && (kind == Mahle::Kind::Battery || kind == Mahle::Kind::Motor || kind == Mahle::Kind::Ebm)) {
         m_gotFrame = true;
-        setLink(3, tr("Connected"));
+        setLink(3, m_demo ? tr("Demo: a pretend bike") : tr("Connected"));
     }
 
     bool bikeChangedNow = false;
     if (kind == Mahle::Kind::Vin) {
         const QString vin = QString::fromStdString(m_parser.vin());
-        if (vin != m_vin) {
+        if (!m_demo && vin != m_vin) {
             m_vin = vin;
             saveSetting(QStringLiteral("bike/vin"), m_vin);
             bikeChangedNow = true;
@@ -599,7 +705,7 @@ void AppController::onFrame(const QByteArray &data)
         }
     } else if (kind == Mahle::Kind::ProtocolReply) {
         const QString version = QString::fromStdString(m_parser.protocolVersion());
-        if (version != m_protocolVersion) {
+        if (!m_demo && version != m_protocolVersion) {
             m_protocolVersion = version;
             saveSetting(QStringLiteral("bike/protocol"), m_protocolVersion);
             bikeChangedNow = true;
@@ -709,7 +815,7 @@ QVariantMap AppController::buildLive() const
     }
     m.insert(QStringLiteral("assistLow"), lo);
     m.insert(QStringLiteral("assistHigh"), hi);
-    m.insert(QStringLiteral("canControl"), m_controlEnabled && m_link.isOpen());
+    m.insert(QStringLiteral("canControl"), m_controlEnabled && linkOpen());
     return m;
 }
 
@@ -782,7 +888,7 @@ bool AppController::syncClock()
 
 void AppController::onTick()
 {
-    if (m_link.isOpen()) {
+    if (linkOpen() && !m_demo) {
         if (!m_gotFrame) {
             // Notifications are on but the bike has said nothing: say so after a while, so that the
             // page does not wait for ever on "waiting for data".

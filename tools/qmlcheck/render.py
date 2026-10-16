@@ -154,6 +154,7 @@ class App(QObject):
     status = Property(str, lambda s: s.s["status"], constant=True)
     live = Property("QVariantMap", lambda s: s.s["live"], constant=True)
     hasBike = Property(bool, lambda s: s.s["hasBike"], constant=True)
+    demo = Property(bool, lambda s: s.s.get("demo", False), constant=True)
     bikeName = Property(str, lambda s: s.s["bikeName"], constant=True)
     bikeAddress = Property(str, lambda s: s.s["bikeAddress"], constant=True)
     vin = Property(str, lambda s: s.s["vin"], constant=True)
@@ -189,6 +190,10 @@ class App(QObject):
     def connectNow(self): pass
     @Slot()
     def disconnectNow(self): pass
+    @Slot()
+    def startDemo(self): pass
+    @Slot()
+    def stopDemo(self): pass
     @Slot(str)
     def pairBike(self, a): pass
     @Slot(int, result=bool)
@@ -230,6 +235,7 @@ CASES = [
                                               "recordingInfo": {"elapsedS": 754, "distanceKm": 3.42}}, {}),
     ("main_nobike", "pages/MainPage.qml", {"hasBike": False, "bikeName": "", "linkState": 0, "status": "No bike chosen",
                                            "live": {}}, {}),
+    ("main_demo", "pages/MainPage.qml", {"demo": True, "bikeName": "Demo bike", "status": "Demo: a pretend bike"}, {}),
     ("main_waiting", "pages/MainPage.qml", {"linkState": 0, "live": {},
                                              "status": "Could not connect to the bike: timeout\nTrying again in 10 s"}, {}),
     ("main_connecting", "pages/MainPage.qml", {"linkState": 1, "live": {}, "status": "Connecting to iWoc 7A21…"}, {}),

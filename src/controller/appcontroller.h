@@ -3,6 +3,7 @@
 #include "ble/bikelink.h"
 #include "ble/bikescanner.h"
 #include "controller/models.h"
+#include "protocol/demo.h"
 #include "protocol/mahle.h"
 #include "ride/ride.h"
 #include "store/ridestore.h"
@@ -34,6 +35,8 @@ class AppController : public QObject
     Q_PROPERTY(QString status READ status NOTIFY linkChanged)
 
     Q_PROPERTY(bool hasBike READ hasBike NOTIFY bikeChanged)
+    // A pretend bike is connected instead of a real one.
+    Q_PROPERTY(bool demo READ demo NOTIFY bikeChanged)
     Q_PROPERTY(QString bikeName READ bikeName NOTIFY bikeChanged)
     Q_PROPERTY(QString bikeAddress READ bikeAddress NOTIFY bikeChanged)
     Q_PROPERTY(QString vin READ vin NOTIFY bikeChanged)
@@ -68,11 +71,12 @@ public:
     QVariantMap live() const { return m_live; }
     int linkState() const { return m_linkState; }
     QString status() const { return m_status; }
-    bool hasBike() const { return !m_bikeAddress.isEmpty(); }
-    QString bikeName() const { return m_bikeName; }
-    QString bikeAddress() const { return m_bikeAddress; }
-    QString vin() const { return m_vin; }
-    QString protocolVersion() const { return m_protocolVersion; }
+    bool hasBike() const { return m_demo || !m_bikeAddress.isEmpty(); }
+    bool demo() const { return m_demo; }
+    QString bikeName() const;
+    QString bikeAddress() const { return m_demo ? QString() : m_bikeAddress; }
+    QString vin() const;
+    QString protocolVersion() const;
     bool scanning() const { return m_scanner.discovering(); }
     BikeListModel *bikes() { return &m_bikes; }
     RideListModel *rides() { return &m_rides; }
@@ -108,6 +112,8 @@ public:
     Q_INVOKABLE void connectNow();
     Q_INVOKABLE void disconnectNow();
     Q_INVOKABLE void pairBike(const QString &address);
+    Q_INVOKABLE void startDemo();
+    Q_INVOKABLE void stopDemo();
 
     // Controls. Each returns false, with a message, when it cannot be sent.
     Q_INVOKABLE bool setAssistLevel(int level);
@@ -151,6 +157,7 @@ private slots:
     void onTick();
     void publishLive();
     void tryConnect();
+    void demoTick();
 
 private:
     void setLink(int state, const QString &status);
@@ -170,6 +177,8 @@ private:
     void stopPositioning();
     void refreshRides();
     bool fresh(int maxAgeMs) const;
+    bool linkOpen() const { return m_demo || m_link.isOpen(); }
+    void handleFrame(const QByteArray &data);
     Ride::Sample makeSample(qint64 nowMs) const;
     QString appDataDir() const;
 
@@ -191,6 +200,11 @@ private:
     QElapsedTimer m_sinceFrame;
     bool m_gotFrame = false;
     int m_framesSinceOpen = 0;
+
+    // The pretend bike
+    bool m_demo = false;
+    Mahle::Demo::Bike m_demoBike;
+    QTimer m_demoTimer;
 
     // Live values
     QVariantMap m_live;

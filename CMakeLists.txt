@@ -25,6 +25,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # g++ in CI, so a bug in it never needs a phone.
 set(CORE_SOURCES
     src/protocol/mahle.cpp
+    src/protocol/demo.cpp
     src/ride/ride.cpp
 )
 

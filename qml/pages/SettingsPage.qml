@@ -120,7 +120,7 @@ Page {
             Item { width: 1; height: Theme.paddingLarge }
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                visible: AppController.hasBike
+                visible: AppController.hasBike && !AppController.demo
                 text: qsTr("Forget this bike")
                 onClicked: forgetRemorse.execute(qsTr("Forgetting the bike"), function() { AppController.forgetBike() })
             }

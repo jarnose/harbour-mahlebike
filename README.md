@@ -30,6 +30,13 @@ thing to try on a bike, in this order:
 3. Only then turn on **Bike controls** (assist level, trip reset, clock). The assist command is the least
    certain thing in the protocol; the app checks that the bike obeyed and says so when it did not.
 
+## Try it without a bike
+
+On the main page, **Try the demo** connects a pretend bike (a protocol 102 bike that rides a loop, answers the
+commands and sends frames built by the inverse of the decoders, which reproduce the real captures byte for
+byte). Everything can be tried with it: the dashboard, the assist buttons (turn controls on first), recording
+a ride, the charts, GPX/CSV export. Demo rides are saved like any other; delete them from the ride list.
+
 ## Things to know
 
 * The bike talks to **one phone at a time**: close My SmartBike first.

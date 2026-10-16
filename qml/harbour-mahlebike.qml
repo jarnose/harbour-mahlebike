@@ -18,7 +18,6 @@ ApplicationWindow {
 
     Toast {
         id: toast
-        parent: appWindow.contentItem
     }
 
     // "Keep the screen on" is a setting; the module that does it is only loaded when it is on.

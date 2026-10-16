@@ -12,4 +12,5 @@ the Bluetooth code of the official My SmartBike app 3.0.5. **Not yet tried on a 
 - Records rides (1 Hz) with an optional GPS track; per-ride statistics, charts and a route sketch;
   export as GPX (with the bike's readings as extensions) or CSV.
 - Optional bike controls, off by default: assist level up/down, trip reset, set the bike's clock.
+- A demo mode with a pretend bike, to try the app and record a ride without a bike.
 - Metric or imperial units, Finnish translation, a log with the raw frames for bug reports.

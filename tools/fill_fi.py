@@ -213,6 +213,14 @@ FI = {
 "Serial number": "Valmistenumero",
 "Protocol": "Protokolla",
 "Forgetting the bike": "Unohdetaan pyörä",
+"Demo bike": "Esittelypyörä",
+"Demo started: a pretend bike": "Esittely alkoi: näennäispyörä",
+"Demo: a pretend bike": "Esittely: näennäispyörä",
+"Demo stopped": "Esittely päättyi",
+"Stop the demo": "Lopeta esittely",
+"Try the demo": "Kokeile esittelyä",
+"The demo is a pretend bike that rides a loop: everything in the app can be tried with it, rides can be recorded and exported.":
+    "Esittely on näennäispyörä, joka ajaa kehää: sillä voi kokeilla kaikkea sovelluksessa, ja ajoja voi tallentaa ja viedä.",
 }
 
 

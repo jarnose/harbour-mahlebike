@@ -45,8 +45,8 @@ Page {
                 onClicked: AppController.connectNow()
             }
             MenuItem {
-                visible: AppController.linkState !== 0
-                text: qsTr("Disconnect")
+                visible: AppController.linkState !== 0 || AppController.demo
+                text: AppController.demo ? qsTr("Stop the demo") : qsTr("Disconnect")
                 onClicked: AppController.disconnectNow()
             }
         }
@@ -82,6 +82,20 @@ Page {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: qsTr("Choose a bike")
                     onClicked: pageStack.push(Qt.resolvedUrl("BikesPage.qml"))
+                }
+                Button {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: qsTr("Try the demo")
+                    onClicked: AppController.startDemo()
+                }
+                Label {
+                    x: Theme.horizontalPageMargin
+                    width: parent.width - 2 * Theme.horizontalPageMargin
+                    wrapMode: Text.Wrap
+                    color: Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: qsTr("The demo is a pretend bike that rides a loop: everything in the app can be tried "
+                               + "with it, rides can be recorded and exported.")
                 }
             }
 
