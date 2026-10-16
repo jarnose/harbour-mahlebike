@@ -15,7 +15,12 @@ the route, and exports as **GPX** (the bike's readings as extensions) or CSV.
 Native C++/QML (Silica). No network permission, no account. Unofficial: not made, endorsed or supported by
 Mahle or any bike brand.
 
-## Status: written overnight, never run against a bike
+## Status: works on one bike (iWoc8910)
+
+**2026-10-16, first try on a real bike (iWoc8910):** it connects, the numbers show, and the assist level
+can be changed (0 to 3 on that bike; every `$M$A#<level>#@` was answered `OK`). The bike never answered
+`$S$P#@`, so its protocol version is unknown to the app; the 17- to 20-byte frames were still decoded by
+length. Rides, GPS and export have not been tried on the bike yet.
 
 The protocol comes from [ha-mysmartbike_ble](https://github.com/ReneNulschDE/ha-mysmartbike_ble) and from the
 decompiled Bluetooth code of the official app (3.0.5). The decoders are tested against the real captures in

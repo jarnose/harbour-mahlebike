@@ -3,7 +3,8 @@
 ## 0.1.0
 
 First version. Written from the protocol of the Home Assistant integration ha-mysmartbike_ble and
-the Bluetooth code of the official My SmartBike app 3.0.5. **Not yet tried on a real bike.**
+the Bluetooth code of the official My SmartBike app 3.0.5. Tried on an iWoc8910: connection, data and
+assist level changes work.
 
 - Connects to a Mahle bike (iWoc / HUS, protocols EBM, 100, 102, 200 and 300) over BlueZ and shows
   speed, assist level, battery (charge, Wh, voltage, current, temperatures, cycles, a second

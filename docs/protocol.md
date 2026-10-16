@@ -11,8 +11,9 @@ Sources, in order of weight:
    carry real frames from an Orbea Vibe, a Schindelhauer Arthur IX and an X20 (HUS) bike. Every vector in
    `tests/test_mahle.cpp` is one of those.
 
-**Nothing here has been run against a bike by this project.** Where a sentence below says *verified*,
-it means "the same in the SDK and in the integration", not "seen on a bike here".
+**Tried on one bike so far: an `iWoc8910` (2026-10-16).** Connection, the data frames, the VIN and the assist
+level command work. Where a sentence below says *verified*, it means "the same in the SDK and in the
+integration", unless it says it was seen on the bike.
 
 ## GATT
 
@@ -56,12 +57,19 @@ negotiated a bigger payload, which the parser joins. The older spelling `R0<VIN>
 | `$S$T#HH:mm#@` | set the bike's clock | `TimeCmd` |
 
 On connect the app sends the first two, 250 ms apart, once more after four seconds if either is unanswered.
+**The iWoc8910 answered the VIN request but never the protocol request.** The frames then decode by length
+(and the `HIJ` marker for the 20-byte trip frames), which is what the integration does when `$S$P#@` times out.
 The integration additionally writes `$D$I#@` when it disconnects. That is `DiagnosisInitRequestCmd`, which
 starts a diagnosis session; this app never sends it. (A bike that has nobody connected switches itself off
 after about five minutes; the integration's author attributes that to the write, the idle timer is the more
 likely cause. Unverified either way.)
 
-### The assist level command is the least certain thing here
+### The assist level command
+
+**Seen on the bike:** `$M$A#<level>#@` sets the target level (2, 3, 2, 1, 0, 1, 2, 1 in turn, each answered
+`$m$A#OK#@`), and the bike also sends `$m$A#031#@` (min 0, max 3, current) by itself about every 20 s, so the
+range is known without asking. That bike has levels 0 to 3. The rest of this section is the reasoning before
+that test.
 
 The official app's `+` and `−` buttons call `changeLevel(current ± 1)`, which reaches
 `AssistLevelRelativeCmd(level)` and writes `$M$A#<level>#@` with no arithmetic in between. So the number on
