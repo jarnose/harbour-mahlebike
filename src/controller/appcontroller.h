@@ -12,6 +12,7 @@
 #include <QGeoPositionInfo>
 #include <QObject>
 #include <QSettings>
+#include <QMap>
 #include <QStringList>
 #include <QTimer>
 #include <QVariantMap>
@@ -52,11 +53,13 @@ class AppController : public QObject
     Q_PROPERTY(bool autoRecord READ autoRecord WRITE setAutoRecord NOTIFY settingsChanged)
     Q_PROPERTY(bool useGps READ useGps WRITE setUseGps NOTIFY settingsChanged)
     Q_PROPERTY(bool keepScreenOn READ keepScreenOn WRITE setKeepScreenOn NOTIFY settingsChanged)
+    Q_PROPERTY(bool traceFrames READ traceFrames WRITE setTraceFrames NOTIFY settingsChanged)
 
     Q_PROPERTY(QString logText READ logText NOTIFY logChanged)
     Q_PROPERTY(QString frameLogText READ frameLogText NOTIFY frameLogChanged)
     Q_PROPERTY(QString version READ version CONSTANT)
     Q_PROPERTY(QString exportDirectory READ exportDirectory CONSTANT)
+    Q_PROPERTY(QString frameTracePath READ frameTracePath CONSTANT)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -82,10 +85,12 @@ public:
     bool autoRecord() const { return m_autoRecord; }
     bool useGps() const { return m_useGps; }
     bool keepScreenOn() const { return m_keepScreenOn; }
+    bool traceFrames() const { return m_traceFrames; }
     QString logText() const { return m_log.join(QLatin1Char('\n')); }
-    QString frameLogText() const { return m_frameLog.join(QLatin1Char('\n')); }
+    QString frameLogText() const;
     QString version() const;
     QString exportDirectory() const;
+    QString frameTracePath() const;
 
     void setImperial(bool on);
     void setAutoConnect(bool on);
@@ -93,6 +98,7 @@ public:
     void setAutoRecord(bool on);
     void setUseGps(bool on);
     void setKeepScreenOn(bool on);
+    void setTraceFrames(bool on);
 
     // Bikes
     Q_INVOKABLE void startScan();
@@ -233,7 +239,11 @@ private:
     bool m_useGps = true;
     bool m_keepScreenOn = false;
 
+    bool m_traceFrames = false;
+
     QStringList m_log;
-    QStringList m_frameLog;
+    QStringList m_frameLog;           // everything but the steady broadcast
+    QMap<QString, QString> m_latest;  // the newest broadcast frame of each kind
+    int m_broadcastShown = 0;
     QString m_logPath;
 };

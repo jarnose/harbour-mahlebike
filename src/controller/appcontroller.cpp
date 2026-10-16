@@ -23,11 +23,21 @@ constexpr int kAutoStopIdleS = 300;
 constexpr int kFlushEverySeconds = 15;
 constexpr int kAssistVerifyMs = 3500;
 constexpr int kMinCommandGapMs = 400;
-const int kRetryDelaysS[] = { 3, 5, 10, 20, 30 };
+// A bike that is off is looked for ever less often: every 30 s, then once a minute.
+const int kRetryDelaysS[] = { 3, 5, 10, 20, 30, 30, 30, 60 };
+constexpr int kSilentHintAfterS = 12;   // connected, but not one data frame yet
 
 QString hexOf(const QByteArray &data)
 {
-    return QString::fromLatin1(data.toHex(' '));
+    // QByteArray::toHex(char separator) is Qt 5.9; Sailfish's Qt is 5.6.
+    const QByteArray plain = data.toHex();
+    QString out;
+    for (int i = 0; i < plain.size(); i += 2) {
+        if (i > 0)
+            out += QLatin1Char(' ');
+        out += QString::fromLatin1(plain.mid(i, 2));
+    }
+    return out;
 }
 
 double toDisplayNumber(double v)
@@ -160,6 +170,7 @@ void AppController::loadSettings()
     m_autoRecord = m_settings->value(QStringLiteral("rides/autoRecord"), false).toBool();
     m_useGps = m_settings->value(QStringLiteral("rides/useGps"), true).toBool();
     m_keepScreenOn = m_settings->value(QStringLiteral("ui/keepScreenOn"), false).toBool();
+    m_traceFrames = m_settings->value(QStringLiteral("debug/traceFrames"), false).toBool();
     m_bikes.setSelectedAddress(m_bikeAddress);
 }
 
@@ -231,6 +242,21 @@ void AppController::setKeepScreenOn(bool on)
     emit settingsChanged();
 }
 
+void AppController::setTraceFrames(bool on)
+{
+    if (m_traceFrames == on)
+        return;
+    m_traceFrames = on;
+    saveSetting(QStringLiteral("debug/traceFrames"), on);
+    logEvent(on ? tr("Writing every frame to %1").arg(frameTracePath()) : tr("Frame tracing off"));
+    emit settingsChanged();
+}
+
+QString AppController::frameTracePath() const
+{
+    return appDataDir() + QStringLiteral("/frames.log");
+}
+
 // ---- log -------------------------------------------------------------------------------------
 
 void AppController::logEvent(const QString &text)
@@ -256,20 +282,61 @@ void AppController::logEvent(const QString &text)
 void AppController::logFrame(const char *direction, const QByteArray &data, const char *kind)
 {
     const Mahle::Bytes bytes(data.begin(), data.end());
-    const QString line = QDateTime::currentDateTime().toString(QStringLiteral("HH:mm:ss.zzz")) + QLatin1Char(' ')
-                         + QLatin1String(direction) + QLatin1Char(' ') + QString::fromLatin1(kind).leftJustified(10)
-                         + QLatin1Char(' ') + hexOf(data) + QLatin1String("  ")
-                         + QString::fromStdString(Mahle::printable(bytes));
-    m_frameLog.append(line);
+    const QString stamp = QDateTime::currentDateTime().toString(QStringLiteral("HH:mm:ss.zzz"));
+    const QString line = stamp + QLatin1Char(' ') + QLatin1String(direction) + QLatin1Char(' ')
+                         + QString::fromLatin1(kind).leftJustified(10) + QLatin1Char(' ') + hexOf(data)
+                         + QLatin1String("  ") + QString::fromStdString(Mahle::printable(bytes));
+
+    if (m_traceFrames) {
+        QFileInfo info(frameTracePath());
+        if (info.exists() && info.size() > 2 * 1024 * 1024) {
+            QFile::remove(frameTracePath() + QStringLiteral(".old"));
+            QFile::rename(frameTracePath(), frameTracePath() + QStringLiteral(".old"));
+        }
+        QFile f(frameTracePath());
+        if (f.open(QIODevice::Append | QIODevice::Text)) {
+            QTextStream out(&f);
+            out << QDateTime::currentDateTime().toString(Qt::ISODate) << ' ' << line << '\n';
+        }
+    }
+
+    // Battery, motor and trip frames arrive several times a second and would push everything else
+    // out of the log in half a minute. The page shows the first few of each, then only the newest
+    // of each kind; replies, commands and anything unrecognised are all kept.
+    const QString k = QString::fromLatin1(kind);
+    const bool broadcast = (k == QLatin1String("battery") || k == QLatin1String("motor") || k == QLatin1String("ebm"))
+                           && direction[0] == '<';
+    if (broadcast) {
+        if (m_broadcastShown < 6) {
+            ++m_broadcastShown;
+            m_frameLog.append(line);
+        }
+        m_latest.insert(k, line);
+    } else {
+        m_frameLog.append(line);
+    }
     while (m_frameLog.size() > kMaxFrameLines)
         m_frameLog.removeFirst();
     emit frameLogChanged();
+}
+
+QString AppController::frameLogText() const
+{
+    QStringList lines = m_frameLog;
+    if (!m_latest.isEmpty()) {
+        lines.append(QStringLiteral("--- newest frame of each kind ---"));
+        for (auto it = m_latest.constBegin(); it != m_latest.constEnd(); ++it)
+            lines.append(it.value());
+    }
+    return lines.join(QLatin1Char('\n'));
 }
 
 void AppController::clearLog()
 {
     m_log.clear();
     m_frameLog.clear();
+    m_latest.clear();
+    m_broadcastShown = 0;
     QFile::remove(m_logPath);
     emit logChanged();
     emit frameLogChanged();
@@ -424,6 +491,7 @@ void AppController::onOpened()
     m_gotFrame = false;
     m_framesSinceOpen = 0;
     m_noDataSeconds = 0;
+    m_broadcastShown = 0;
     m_sinceFrame.invalidate();
     setLink(2, tr("Connected, waiting for the bike's data…"));
     logEvent(tr("Connected"));
@@ -714,22 +782,29 @@ bool AppController::syncClock()
 
 void AppController::onTick()
 {
-    // A link that is open but silent: say so, so the page does not show frozen numbers as live.
-    if (m_link.isOpen() && m_gotFrame && !fresh(kStaleFrameMs)) {
-        ++m_noDataSeconds;
-        if (m_linkState == 3) {
-            setLink(2, tr("Connected, but the bike has stopped sending data"));
-            scheduleLive();
-        }
-    } else if (m_link.isOpen() && m_gotFrame) {
-        m_noDataSeconds = 0;
-        if (m_linkState == 2)
+    if (m_link.isOpen()) {
+        if (!m_gotFrame) {
+            // Notifications are on but the bike has said nothing: say so after a while, so that the
+            // page does not wait for ever on "waiting for data".
+            if (++m_noDataSeconds == kSilentHintAfterS) {
+                logEvent(tr("Connected for %1 s without a data frame").arg(kSilentHintAfterS));
+                setLink(2, tr("Connected, but the bike sends no data. Make sure no other phone is connected "
+                              "to it, or switch the bike off and on."));
+            }
+        } else if (!fresh(kStaleFrameMs)) {
+            // Frames came, then stopped: do not show frozen numbers as live.
+            if (m_linkState == 3) {
+                setLink(2, tr("Connected, but the bike has stopped sending data"));
+                scheduleLive();
+            }
+        } else if (m_linkState == 2) {
             setLink(3, tr("Connected"));
+        }
     }
 
     const auto &motor = m_parser.motor();
-    const bool live = fresh(3000) && motor;
-    maybeAutoRecord(live ? motor->speedKmh : 0.0);
+    const bool liveNow = fresh(3000) && motor;
+    maybeAutoRecord(liveNow ? motor->speedKmh : 0.0);
     if (recording())
         sampleTick();
 }
@@ -789,7 +864,6 @@ bool AppController::startRecording()
     m_idleSeconds = 0;
     m_linkLossSeconds = 0;
     m_flushCounter = 0;
-    if (!m_recordingAuto) { /* a manual start keeps running until the user stops it */ }
     logEvent(m_recordingAuto ? tr("Ride started automatically") : tr("Ride started"));
     if (m_useGps)
         startPositioning();

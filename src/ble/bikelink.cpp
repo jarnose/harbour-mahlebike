@@ -231,13 +231,14 @@ void BikeLink::subscribe()
 
 void BikeLink::fail(const QString &message)
 {
-    close(false);
+    // A half-made connection is dropped, so that the next attempt starts clean.
+    close(m_connected);
     emit failed(message);
 }
 
 void BikeLink::unhookAll()
 {
-    auto &bus = QDBusConnection::systemBus();
+    QDBusConnection bus = QDBusConnection::systemBus();
     if (m_frameHooked) {
         bus.disconnect(kBluezService, m_notifyPath, kPropertiesInterface, QStringLiteral("PropertiesChanged"), this,
                        SLOT(onFrameChanged(QString, QVariantMap, QStringList)));

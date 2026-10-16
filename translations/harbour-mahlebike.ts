@@ -57,286 +57,306 @@
 <context>
     <name>AppController</name>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="58"/>
+        <location filename="../src/controller/appcontroller.cpp" line="68"/>
         <source>Could not open the ride database: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="69"/>
+        <location filename="../src/controller/appcontroller.cpp" line="79"/>
         <source>Write to the bike failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="73"/>
+        <location filename="../src/controller/appcontroller.cpp" line="83"/>
         <source>Paired with the bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="74"/>
+        <location filename="../src/controller/appcontroller.cpp" line="84"/>
         <source>Paired</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="103"/>
+        <location filename="../src/controller/appcontroller.cpp" line="113"/>
         <source>The bike did not confirm assist level %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="113"/>
+        <location filename="../src/controller/appcontroller.cpp" line="123"/>
         <source>Not connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="113"/>
-        <location filename="../src/controller/appcontroller.cpp" line="352"/>
-        <location filename="../src/controller/appcontroller.cpp" line="374"/>
+        <location filename="../src/controller/appcontroller.cpp" line="123"/>
+        <location filename="../src/controller/appcontroller.cpp" line="419"/>
+        <location filename="../src/controller/appcontroller.cpp" line="441"/>
         <source>No bike chosen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="196"/>
+        <location filename="../src/controller/appcontroller.cpp" line="207"/>
         <source>Bike controls enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="196"/>
+        <location filename="../src/controller/appcontroller.cpp" line="207"/>
         <source>Bike controls disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="334"/>
-        <source>Bike chosen: %1 (%2)</source>
+        <location filename="../src/controller/appcontroller.cpp" line="251"/>
+        <source>Writing every frame to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="374"/>
-        <location filename="../src/controller/appcontroller.cpp" line="375"/>
-        <location filename="../src/controller/appcontroller.cpp" line="451"/>
-        <source>Disconnected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/controller/appcontroller.cpp" line="383"/>
-        <source>The bike is not visible to Bluetooth right now</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/controller/appcontroller.cpp" line="386"/>
-        <source>Pairing with %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/controller/appcontroller.cpp" line="399"/>
-        <source>Looking for the bike…</source>
+        <location filename="../src/controller/appcontroller.cpp" line="251"/>
+        <source>Frame tracing off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/controller/appcontroller.cpp" line="401"/>
+        <source>Bike chosen: %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="441"/>
+        <location filename="../src/controller/appcontroller.cpp" line="442"/>
+        <location filename="../src/controller/appcontroller.cpp" line="519"/>
+        <source>Disconnected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="450"/>
+        <source>The bike is not visible to Bluetooth right now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="453"/>
+        <source>Pairing with %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="466"/>
+        <source>Looking for the bike…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="468"/>
         <source>The bike is not visible to Bluetooth. Switch it on and keep it close.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="406"/>
+        <location filename="../src/controller/appcontroller.cpp" line="473"/>
         <source>Connecting to %1…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="407"/>
+        <location filename="../src/controller/appcontroller.cpp" line="474"/>
         <source>Connecting (attempt %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="417"/>
+        <location filename="../src/controller/appcontroller.cpp" line="484"/>
         <source>Trying again in %1 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="428"/>
+        <location filename="../src/controller/appcontroller.cpp" line="496"/>
         <source>Connected, waiting for the bike&apos;s data…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="429"/>
-        <location filename="../src/controller/appcontroller.cpp" line="520"/>
-        <location filename="../src/controller/appcontroller.cpp" line="727"/>
+        <location filename="../src/controller/appcontroller.cpp" line="497"/>
+        <location filename="../src/controller/appcontroller.cpp" line="588"/>
+        <location filename="../src/controller/appcontroller.cpp" line="801"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="442"/>
+        <location filename="../src/controller/appcontroller.cpp" line="510"/>
         <source>The bike disconnected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="449"/>
+        <location filename="../src/controller/appcontroller.cpp" line="517"/>
         <source>The bike disconnected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="485"/>
+        <location filename="../src/controller/appcontroller.cpp" line="553"/>
         <source>Not connected to the bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="489"/>
+        <location filename="../src/controller/appcontroller.cpp" line="557"/>
         <source>One moment…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="494"/>
+        <location filename="../src/controller/appcontroller.cpp" line="562"/>
         <source>Could not send to the bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="530"/>
+        <location filename="../src/controller/appcontroller.cpp" line="598"/>
         <source>VIN: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="538"/>
+        <location filename="../src/controller/appcontroller.cpp" line="606"/>
         <source>Protocol version: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="542"/>
+        <location filename="../src/controller/appcontroller.cpp" line="610"/>
         <source>Assist levels %1 to %2, now %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="544"/>
+        <location filename="../src/controller/appcontroller.cpp" line="612"/>
         <source>Assist answer: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="658"/>
-        <location filename="../src/controller/appcontroller.cpp" line="689"/>
-        <location filename="../src/controller/appcontroller.cpp" line="702"/>
+        <location filename="../src/controller/appcontroller.cpp" line="726"/>
+        <location filename="../src/controller/appcontroller.cpp" line="757"/>
+        <location filename="../src/controller/appcontroller.cpp" line="770"/>
         <source>Bike controls are off. Turn them on in Settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="670"/>
+        <location filename="../src/controller/appcontroller.cpp" line="738"/>
         <source>Assist level %1 requested</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="680"/>
+        <location filename="../src/controller/appcontroller.cpp" line="748"/>
         <source>The bike&apos;s assist level is not known yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="694"/>
+        <location filename="../src/controller/appcontroller.cpp" line="762"/>
         <source>Trip reset requested</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="695"/>
+        <location filename="../src/controller/appcontroller.cpp" line="763"/>
         <source>Trip reset sent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="708"/>
+        <location filename="../src/controller/appcontroller.cpp" line="776"/>
         <source>Clock set to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="709"/>
+        <location filename="../src/controller/appcontroller.cpp" line="777"/>
         <source>Bike clock set to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="721"/>
+        <location filename="../src/controller/appcontroller.cpp" line="790"/>
+        <source>Connected for %1 s without a data frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="791"/>
+        <source>Connected, but the bike sends no data. Make sure no other phone is connected to it, or switch the bike off and on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/controller/appcontroller.cpp" line="797"/>
         <source>Connected, but the bike has stopped sending data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="744"/>
+        <location filename="../src/controller/appcontroller.cpp" line="819"/>
         <source>Ride stopped: standing still for %1 minutes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="768"/>
+        <location filename="../src/controller/appcontroller.cpp" line="843"/>
         <source>The ride database is not available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="777"/>
+        <location filename="../src/controller/appcontroller.cpp" line="852"/>
         <source>Could not start the ride</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="793"/>
+        <location filename="../src/controller/appcontroller.cpp" line="867"/>
         <source>Ride started automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="793"/>
+        <location filename="../src/controller/appcontroller.cpp" line="867"/>
         <source>Ride started</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="817"/>
-        <location filename="../src/controller/appcontroller.cpp" line="818"/>
+        <location filename="../src/controller/appcontroller.cpp" line="891"/>
+        <location filename="../src/controller/appcontroller.cpp" line="892"/>
         <source>Ride discarded: too short</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="825"/>
+        <location filename="../src/controller/appcontroller.cpp" line="899"/>
         <source>Ride saved: %1 km in %2 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="826"/>
+        <location filename="../src/controller/appcontroller.cpp" line="900"/>
         <source>Ride saved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="872"/>
+        <location filename="../src/controller/appcontroller.cpp" line="946"/>
         <source>Ride stopped: no data from the bike for %1 minutes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="923"/>
+        <location filename="../src/controller/appcontroller.cpp" line="997"/>
         <source>No positioning source on this device</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="934"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1008"/>
         <source>Positioning error %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="940"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1014"/>
         <source>Waiting for a GPS fix…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="963"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1037"/>
         <source>GPS fix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1092"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1166"/>
         <source>Ride %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1100"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1174"/>
         <source>This ride has no GPS track. Export it as CSV instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1110"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1184"/>
         <source>Could not create %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1117"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1191"/>
         <source>Could not write %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/controller/appcontroller.cpp" line="1120"/>
+        <location filename="../src/controller/appcontroller.cpp" line="1194"/>
         <source>Exported %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -379,14 +399,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ble/bikelink.cpp" line="318"/>
+        <location filename="../src/ble/bikelink.cpp" line="319"/>
         <source>Pairing failed: %1
 
 Pair the bike in Settings &gt; Bluetooth instead, then come back here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ble/bikelink.cpp" line="343"/>
+        <location filename="../src/ble/bikelink.cpp" line="344"/>
         <source>The bike dropped the connection while it was being set up.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -831,12 +851,10 @@ Pair the bike in Settings &gt; Bluetooth instead, then come back here.</source>
         <source>Rides</source>
         <translation type="unfinished"></translation>
     </message>
-    <message numerus="yes">
+    <message>
         <location filename="../qml/pages/RidesPage.qml" line="15"/>
-        <source>%n ride(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
+        <source>%1 rides</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/RidesPage.qml" line="32"/>
@@ -948,7 +966,7 @@ Pair the bike in Settings &gt; Bluetooth instead, then come back here.</source>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="71"/>
-        <source>Lets the app change the assist level, reset the trip and set the bike&apos;s clock. Off by default: these commands come from the official app&apos;s software but have not been tried on every bike.</source>
+        <source>Lets the app change the assist level, reset the trip and set the bike&apos;s clock. Off by default: the commands were taken from the official app&apos;s code and have not been tested on a real bike yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -968,36 +986,51 @@ Pair the bike in Settings &gt; Bluetooth instead, then come back here.</source>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="92"/>
-        <source>Bike</source>
+        <source>Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="94"/>
+        <source>Record every frame to a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="95"/>
+        <source>Writes everything the bike sends to %1. A capture is what is needed to add support for a bike that shows wrong numbers; it contains the bike&apos;s serial number.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="103"/>
+        <source>Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="105"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="98"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="109"/>
         <source>Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="102"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="113"/>
         <source>Serial number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="106"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="117"/>
         <source>Protocol</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="113"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="124"/>
         <source>Forget this bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="114"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="125"/>
         <source>Forgetting the bike</source>
         <translation type="unfinished"></translation>
     </message>

@@ -458,7 +458,9 @@ void Parser::parseEbm20(const Bytes &f, bool v200)
 
     // Consecutive frames alternate: slot 2 carries trip A, anything else the lifetime totals.
     // Whichever set a frame does not carry is kept from the previous one.
-    Ebm e = m_ebm.value_or(Ebm());
+    if (!m_ebm)
+        m_ebm = Ebm();
+    Ebm &e = *m_ebm;
     if (slot == 2) {
         e.tripKm = odo;
         e.tripRangeKm = range;
@@ -485,7 +487,6 @@ void Parser::parseEbm20(const Bytes &f, bool v200)
         e.remoteConnected = std::nullopt;
         e.remoteSoc = std::nullopt;
     }
-    m_ebm = e;
 }
 
 } // namespace Mahle

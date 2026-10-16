@@ -69,8 +69,8 @@ Page {
             TextSwitch {
                 text: qsTr("Allow the app to control the bike")
                 description: qsTr("Lets the app change the assist level, reset the trip and set the bike's "
-                                  + "clock. Off by default: these commands come from the official app's "
-                                  + "software but have not been tried on every bike.")
+                                  + "clock. Off by default: the commands were taken from the official app's "
+                                  + "code and have not been tested on a real bike yet.")
                 checked: AppController.controlEnabled
                 automaticCheck: false
                 onClicked: AppController.controlEnabled = !AppController.controlEnabled
@@ -87,6 +87,17 @@ Page {
                 text: qsTr("Set the bike's clock")
                 enabled: AppController.controlEnabled && AppController.linkState >= 2
                 onClicked: AppController.syncClock()
+            }
+
+            SectionHeader { text: qsTr("Diagnostics") }
+            TextSwitch {
+                text: qsTr("Record every frame to a file")
+                description: qsTr("Writes everything the bike sends to %1. A capture is what is needed to "
+                                  + "add support for a bike that shows wrong numbers; it contains the "
+                                  + "bike's serial number.").arg(AppController.frameTracePath)
+                checked: AppController.traceFrames
+                automaticCheck: false
+                onClicked: AppController.traceFrames = !AppController.traceFrames
             }
 
             SectionHeader { text: qsTr("Bike") }

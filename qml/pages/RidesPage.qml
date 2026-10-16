@@ -12,7 +12,7 @@ Page {
 
         header: PageHeader {
             title: qsTr("Rides")
-            description: list.count > 0 ? qsTr("%n ride(s)", "", list.count) : ""
+            description: list.count > 0 ? qsTr("%1 rides").arg(list.count) : ""
         }
 
         section {

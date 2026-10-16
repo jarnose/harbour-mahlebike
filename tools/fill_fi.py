@@ -1,0 +1,248 @@
+#!/usr/bin/env python3
+"""Fills translations/harbour-mahlebike-fi.ts from the English extraction base.
+
+lupdate maintains the message list; this holds the Finnish text. Run it after lupdate (see README)
+and it reports any source string that has no translation, so a new qsTr() cannot slip through
+untranslated unnoticed.
+"""
+import html
+import re
+import shutil
+import sys
+
+FI = {
+"About Mahle Bike": "Tietoja: Mahle Bike",
+"Version %1": "Versio %1",
+"Mahle Bike shows what an e-bike with a Mahle drive system reports over Bluetooth LE and records your rides. It is an independent project: it is not made, endorsed or supported by Mahle or any bike brand, and it comes without any warranty. Do not let it distract you in traffic.":
+    "Mahle Bike näyttää, mitä Mahlen voimajärjestelmällä varustettu sähköpyörä kertoo Bluetooth LE:n yli, ja tallentaa ajosi. Tämä on riippumaton projekti: Mahle tai mikään pyörämerkki ei ole tehnyt, hyväksynyt eikä tue sitä, eikä sille anneta mitään takuuta. Älä anna sen häiritä sinua liikenteessä.",
+"Which bikes": "Mitkä pyörät",
+"Bikes that the My SmartBike or ebikemotion app connects to: the X20 (HUS...), X25 and X35+ (iWoc...) systems, sold under brands such as Orbea, Scott, Bianchi, Pinarello and Schindelhauer. The bike's protocol version decides how its numbers are read; it is shown in Settings.":
+    "Pyörät, joihin My SmartBike- tai ebikemotion-sovellus yhdistää: X20- (HUS…), X25- ja X35+ -järjestelmät (iWoc…), joita myydään esimerkiksi merkeillä Orbea, Scott, Bianchi, Pinarello ja Schindelhauer. Pyörän protokollaversio ratkaisee, miten sen luvut luetaan; se näkyy asetuksissa.",
+"Privacy": "Yksityisyys",
+"The app has no network permission and needs no account. Rides are kept in a database in the app's own folder on this phone. The GPS is used only while a ride is being recorded. Exports go to Documents/MahleBike.":
+    "Sovelluksella ei ole verkkolupaa eikä se tarvitse tiliä. Ajot tallennetaan tietokantaan sovelluksen omaan kansioon tässä puhelimessa. GPS:ää käytetään vain ajon tallennuksen aikana. Viennit tallentuvat kansioon Documents/MahleBike.",
+"Credits": "Tekijät ja kiitokset",
+"The frame layouts come from René Nulsch's Home Assistant integration ha-mysmartbike_ble (MIT licence), and were checked against the Bluetooth code of the official My SmartBike app, version 3.0.5.":
+    "Kehysrakenteet ovat René Nulschin Home Assistant -integraatiosta ha-mysmartbike_ble (MIT-lisenssi), ja ne tarkistettiin virallisen My SmartBike -sovelluksen version 3.0.5 Bluetooth-koodista.",
+"Data folder": "Tietokansio",
+"Could not open the ride database: %1": "Ajotietokantaa ei voitu avata: %1",
+"Write to the bike failed: %1": "Kirjoitus pyörälle epäonnistui: %1",
+"Paired with the bike": "Pariliitos pyörän kanssa tehty",
+"Paired": "Pariliitos tehty",
+"The bike did not confirm assist level %1": "Pyörä ei vahvistanut tukitasoa %1",
+"Not connected": "Ei yhteyttä",
+"No bike chosen": "Pyörää ei ole valittu",
+"Bike controls enabled": "Pyörän ohjaus sallittu",
+"Bike controls disabled": "Pyörän ohjaus estetty",
+"Writing every frame to %1": "Jokainen kehys kirjoitetaan tiedostoon %1",
+"Frame tracing off": "Kehysten tallennus pois",
+"Bike chosen: %1 (%2)": "Pyörä valittu: %1 (%2)",
+"Disconnected": "Yhteys katkaistu",
+"The bike is not visible to Bluetooth right now": "Pyörä ei näy Bluetoothille juuri nyt",
+"Pairing with %1": "Tehdään pariliitos: %1",
+"Looking for the bike…": "Etsitään pyörää…",
+"The bike is not visible to Bluetooth. Switch it on and keep it close.": "Pyörä ei näy Bluetoothille. Kytke se päälle ja pidä lähellä.",
+"Connecting to %1…": "Yhdistetään: %1…",
+"Connecting (attempt %1)": "Yhdistetään (yritys %1)",
+"Trying again in %1 s": "Yritetään uudelleen %1 s kuluttua",
+"Connected, waiting for the bike's data…": "Yhdistetty, odotetaan pyörän tietoja…",
+"Connected": "Yhdistetty",
+"The bike disconnected": "Pyörä katkaisi yhteyden",
+"The bike disconnected.": "Pyörä katkaisi yhteyden.",
+"Not connected to the bike": "Ei yhteyttä pyörään",
+"One moment…": "Hetki…",
+"Could not send to the bike": "Pyörälle lähetys ei onnistunut",
+"VIN: %1": "Valmistenumero: %1",
+"Protocol version: %1": "Protokollaversio: %1",
+"Assist levels %1 to %2, now %3": "Tukitasot %1–%2, nyt %3",
+"Assist answer: %1": "Tukitason vastaus: %1",
+"Bike controls are off. Turn them on in Settings.": "Pyörän ohjaus on pois. Ota se käyttöön asetuksissa.",
+"Assist level %1 requested": "Tukitasoa %1 pyydetty",
+"The bike's assist level is not known yet": "Pyörän tukitasoa ei vielä tiedetä",
+"Trip reset requested": "Matkamittarin nollaus pyydetty",
+"Trip reset sent": "Matkamittarin nollaus lähetetty",
+"Clock set to %1": "Kello asetettu: %1",
+"Bike clock set to %1": "Pyörän kello asetettu: %1",
+"Connected for %1 s without a data frame": "Yhdistettynä %1 s ilman yhtään datakehystä",
+"Connected, but the bike sends no data. Make sure no other phone is connected to it, or switch the bike off and on.":
+    "Yhdistetty, mutta pyörä ei lähetä tietoja. Varmista, ettei siinä ole toista puhelinta kytkettynä, tai kytke pyörä pois ja päälle.",
+"Connected, but the bike has stopped sending data": "Yhdistetty, mutta pyörä on lopettanut tietojen lähettämisen",
+"Ride stopped: standing still for %1 minutes": "Ajo päättyi: paikallaan %1 minuuttia",
+"The ride database is not available": "Ajotietokanta ei ole käytettävissä",
+"Could not start the ride": "Ajoa ei voitu aloittaa",
+"Ride started automatically": "Ajo alkoi automaattisesti",
+"Ride started": "Ajo alkoi",
+"Ride discarded: too short": "Ajo hylätty: liian lyhyt",
+"Ride saved: %1 km in %2 s": "Ajo tallennettu: %1 km, %2 s",
+"Ride saved": "Ajo tallennettu",
+"Ride stopped: no data from the bike for %1 minutes": "Ajo päättyi: ei tietoja pyörältä %1 minuuttiin",
+"No positioning source on this device": "Tässä laitteessa ei ole paikannuslähdettä",
+"Positioning error %1": "Paikannusvirhe %1",
+"Waiting for a GPS fix…": "Odotetaan GPS-paikannusta…",
+"GPS fix": "GPS-paikannus",
+"Ride %1": "Ajo %1",
+"This ride has no GPS track. Export it as CSV instead.": "Tässä ajossa ei ole GPS-jälkeä. Vie se CSV-tiedostona.",
+"Could not create %1": "Kansiota %1 ei voitu luoda",
+"Could not write %1": "Tiedostoa %1 ei voitu kirjoittaa",
+"Exported %1": "Viety: %1",
+"The bike did not answer in time. Is it switched on and nearby, and not connected to another phone?":
+    "Pyörä ei vastannut ajoissa. Onko se päällä ja lähellä, eikä yhdistettynä toiseen puhelimeen?",
+"Could not connect to the bike: %1": "Pyörään ei saatu yhteyttä: %1",
+"Could not list Bluetooth services: %1": "Bluetooth-palveluita ei voitu listata: %1",
+"This device does not offer the Mahle bike service (FFE0).": "Tämä laite ei tarjoa Mahlen pyöräpalvelua (FFE0).",
+"The bike service is missing its read or write characteristic.": "Pyöräpalvelusta puuttuu luku- tai kirjoitusominaisuus.",
+"The bike refused notifications because the link is not encrypted. Pair the bike first.":
+    "Pyörä kieltäytyi ilmoituksista, koska yhteys ei ole salattu. Tee pyörälle ensin pariliitos.",
+"Could not subscribe to the bike's notifications: %1": "Pyörän ilmoituksia ei voitu tilata: %1",
+"Pairing failed: %1\n\nPair the bike in Settings > Bluetooth instead, then come back here.":
+    "Pariliitos epäonnistui: %1\n\nTee pariliitos Asetukset > Bluetooth -kohdassa ja palaa sitten tänne.",
+"The bike dropped the connection while it was being set up.": "Pyörä katkaisi yhteyden sitä muodostettaessa.",
+"Could not reach Bluetooth (org.bluez): %1": "Bluetoothiin (org.bluez) ei saatu yhteyttä: %1",
+"No Bluetooth adapter found": "Bluetooth-sovitinta ei löytynyt",
+"Could not list Bluetooth devices: %1": "Bluetooth-laitteita ei voitu listata: %1",
+"Could not start scanning: %1": "Etsintää ei voitu aloittaa: %1",
+"Forget this bike": "Unohda tämä pyörä",
+"Scan again": "Etsi uudelleen",
+"Choose a bike": "Valitse pyörä",
+"Switch the bike on. It appears under a name that starts with iWoc or HUS. A bike talks to one phone at a time, so close the My SmartBike app and any other device that is connected to it.":
+    "Kytke pyörä päälle. Se näkyy nimellä, joka alkaa iWoc tai HUS. Pyörä puhuu kerrallaan yhden puhelimen kanssa, joten sulje My SmartBike -sovellus ja muut siihen yhdistetyt laitteet.",
+"Pair (only if it will not connect)": "Tee pariliitos (vain jos se ei yhdisty)",
+"paired": "pariliitos tehty",
+"connected": "yhdistetty",
+"selected": "valittu",
+"Looking for bikes…": "Etsitään pyöriä…",
+"No bike found": "Pyörää ei löytynyt",
+"Switch the bike on and keep the phone next to it": "Kytke pyörä päälle ja pidä puhelin sen vieressä",
+"Assist %1": "Tuki %1",
+"No data": "Ei tietoja",
+"Clear the log": "Tyhjennä loki",
+"Log": "Loki",
+"Events": "Tapahtumat",
+"Last frames (<- from the bike, -> to the bike)": "Viimeisimmät kehykset (<- pyörältä, -> pyörälle)",
+"About": "Tietoja",
+"Settings": "Asetukset",
+"Rides": "Ajot",
+"Connect": "Yhdistä",
+"Disconnect": "Katkaise yhteys",
+"Mahle Bike": "Mahle Bike",
+"Switch the bike on and choose it. The bike talks to one phone at a time, so close the My SmartBike app first.":
+    "Kytke pyörä päälle ja valitse se. Pyörä puhuu kerrallaan yhden puhelimen kanssa, joten sulje ensin My SmartBike -sovellus.",
+"Assist level": "Tukitaso",
+"Battery": "Akku",
+"Second battery": "Toinen akku",
+"The bike reports fault %1": "Pyörä ilmoittaa vian %1",
+"Ask your dealer; the number identifies the fault.": "Kysy myyjältä; numero yksilöi vian.",
+"You": "Sinä",
+"Motor": "Moottori",
+"Motor current": "Moottorin virta",
+"Torque": "Vääntö",
+"Range": "Toimintamatka",
+"Trip": "Matka",
+"Odometer": "Matkamittari",
+"Voltage": "Jännite",
+"Battery current": "Akun virta",
+"Charge cycles": "Latauskerrat",
+"On": "Päällä",
+"Off": "Pois",
+"Light": "Valo",
+"Remote": "Kaukosäädin",
+"Stop ride": "Lopeta ajo",
+"Start ride": "Aloita ajo",
+"Rides start by themselves when you set off": "Ajo alkaa itsestään, kun lähdet liikkeelle",
+"Records speed, power and battery": "Tallentaa nopeuden, tehon ja akun",
+"Name the ride": "Nimeä ajo",
+"Name": "Nimi",
+"Delete": "Poista",
+"Deleting": "Poistetaan",
+"Export as CSV": "Vie CSV-tiedostona",
+"Export as GPX": "Vie GPX-tiedostona",
+"Rename": "Nimeä uudelleen",
+"Saved to %1": "Tallennettu: %1",
+"Distance": "Matka",
+"Time": "Aika",
+"Moving": "Liikkeessä",
+"Average": "Keskinopeus",
+"Top speed": "Huippunopeus",
+"Climbed": "Nousu",
+"Battery used": "Akkua kulunut",
+"Consumption": "Kulutus",
+"Charge": "Lataus",
+"Your power (avg)": "Oma teho (keski)",
+"Motor (avg)": "Moottori (keski)",
+"Your power (max)": "Oma teho (maks)",
+"Route": "Reitti",
+"Speed (%1)": "Nopeus (%1)",
+"Your power (W)": "Oma teho (W)",
+"Motor power (W)": "Moottorin teho (W)",
+"Battery (%)": "Akku (%)",
+"Altitude (%1)": "Korkeus (%1)",
+"Time at each assist level": "Aika kullakin tukitasolla",
+"Level %1": "Taso %1",
+"%1 rides": "%1 ajoa",
+"recording": "tallennetaan",
+"No rides yet": "Ei vielä ajoja",
+"Press Start ride on the main page, or turn on automatic recording in Settings": "Paina pääsivulla Aloita ajo tai ota automaattinen tallennus käyttöön asetuksissa",
+"Display": "Näyttö",
+"Miles instead of kilometres": "Mailit kilometrien sijaan",
+"Keep the screen on": "Pidä näyttö päällä",
+"While the app is in front. A bike display is only useful if it stays lit.": "Kun sovellus on etualalla. Pyörän näyttö on hyödyllinen vain, jos se pysyy valaistuna.",
+"Connection": "Yhteys",
+"Connect automatically": "Yhdistä automaattisesti",
+"Connects to the chosen bike when the app starts and again whenever it drops. Switching the bike on is enough.":
+    "Yhdistää valittuun pyörään, kun sovellus käynnistyy, ja uudelleen aina kun yhteys katkeaa. Pyörän kytkeminen päälle riittää.",
+"A bike that has been left switched on with nobody connected turns itself off after about five minutes. Disconnecting here starts that timer too.":
+    "Pyörä, joka on jätetty päälle ilman yhdistettyä laitetta, sammuu itsestään noin viidessä minuutissa. Yhteyden katkaiseminen täällä käynnistää myös tämän ajastimen.",
+"Record rides automatically": "Tallenna ajot automaattisesti",
+"Starts when you set off, stops after five minutes of standing still.": "Alkaa, kun lähdet liikkeelle, ja päättyy viiden minuutin paikallaanolon jälkeen.",
+"Record the route with GPS": "Tallenna reitti GPS:llä",
+"Adds the phone's position to a ride, so that it can be exported as GPX. It is only used while a ride is being recorded.":
+    "Lisää puhelimen sijainnin ajoon, jotta se voidaan viedä GPX-tiedostona. Sitä käytetään vain ajon tallennuksen aikana.",
+"Bike controls": "Pyörän ohjaus",
+"Allow the app to control the bike": "Salli sovelluksen ohjata pyörää",
+"Lets the app change the assist level, reset the trip and set the bike's clock. Off by default: the commands were taken from the official app's code and have not been tested on a real bike yet.":
+    "Antaa sovelluksen vaihtaa tukitasoa, nollata matkamittarin ja asettaa pyörän kellon. Oletuksena pois: komennot on otettu virallisen sovelluksen koodista, eikä niitä ole vielä kokeiltu oikealla pyörällä.",
+"Reset trip": "Nollaa matkamittari",
+"Resetting the trip": "Nollataan matkamittaria",
+"Set the bike's clock": "Aseta pyörän kello",
+"Diagnostics": "Vianetsintä",
+"Record every frame to a file": "Tallenna jokainen kehys tiedostoon",
+"Writes everything the bike sends to %1. A capture is what is needed to add support for a bike that shows wrong numbers; it contains the bike's serial number.":
+    "Kirjoittaa kaiken, mitä pyörä lähettää, tiedostoon %1. Tallenne tarvitaan, jotta pyörälle, joka näyttää vääriä lukuja, voidaan lisätä tuki; se sisältää pyörän valmistenumeron.",
+"Bike": "Pyörä",
+"Address": "Osoite",
+"Serial number": "Valmistenumero",
+"Protocol": "Protokolla",
+"Forgetting the bike": "Unohdetaan pyörä",
+}
+
+
+def main():
+    base, out = "translations/harbour-mahlebike.ts", "translations/harbour-mahlebike-fi.ts"
+    shutil.copyfile(base, out)
+    text = open(out, encoding="utf-8").read()
+    text = text.replace('<TS version="2.1">', '<TS version="2.1" language="fi_FI">', 1) \
+        if 'language=' not in text.split('\n')[1] else text
+    missing = []
+
+    def fill(match):
+        block = match.group(0)
+        src = html.unescape(re.search(r"<source>(.*?)</source>", block, re.S).group(1))
+        if src not in FI:
+            missing.append(src)
+            return block
+        esc = html.escape(FI[src], quote=False)
+        return re.sub(r"<translation[^>]*>.*?</translation>|<translation[^>]*/>",
+                      "<translation>%s</translation>" % esc, block, flags=re.S)
+
+    text = re.sub(r"<message>.*?</message>", fill, text, flags=re.S)
+    open(out, "w", encoding="utf-8").write(text)
+    used = {html.unescape(m) for m in re.findall(r"<source>(.*?)</source>", text, re.S)}
+    for m in missing:
+        print("UNTRANSLATED:", repr(m))
+    for k in FI:
+        if k not in used:
+            print("unused entry:", repr(k[:60]))
+    return 1 if missing else 0
+
+
+sys.exit(main())
