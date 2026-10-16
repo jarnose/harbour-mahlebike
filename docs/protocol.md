@@ -117,6 +117,36 @@ Frames recognised and deliberately not decoded: `$b$P` / `$b$R` (power source, 1
 wireless remote pairing, 200+), `$m$G` (traction control / auto hold, 200), `$m$M` / `$M$M` (motor maps),
 `$s$L` (blinking lights), `$d$…` (diagnosis), `$i$C` (calibration).
 
+## Motor maps (Eco / Dynamic / Sport)
+
+The official app's "motor maps" screen sets how much of its power the motor gives per assist level. The
+mode names (Eco, Urban, Sport, Custom, Factory) are **presets that the app fetches from Mahle's server**: the
+APK holds no numbers for them. The values this app offers (Eco 30/42/65, Dynamic 40/70/90, Sport 60/80/100 for
+levels 1/2/3) are the ones read off the Android app by hand.
+
+On an X35-type bike there are three maps, numbered like the levels, each a single percentage:
+
+| | Bytes |
+|---|---|
+| Read | `$M$M#R<n>` + 10 zeros + `00` + `#@`, 20 bytes. The official app only ever sends `n = 0`; the bike then sends every map. |
+| Write | `$M$M#W<n>` + 10 zeros + `<percent>` + `#@`, 20 bytes (`EngineMapConstWriteCmdEbm`) |
+| Reply to a read | `$m$M#` + `R`/`W` + `<n>` + curve points at 7..16 + `<percent>` at 17 + `#@`. A (speed, power) pair counts as a curve point only when its power byte is below 255, so a percentage map has none. |
+| Reply to a write | `$m$M#OK#@` or `$m$M#ER#@` (9 bytes) |
+
+The official app writes the maps one at a time, waits 5 s for the answer and tries three times. It replaces
+the percentages 35 and 64 by 34 and 65, because they are the characters `#` and `@`. Its own bike-lock feature
+writes all three maps (0 % when locked, 100 % when not), which is what confirms "map number = assist level".
+Other layouts exist in the SDK for bikes with curve maps (`EngineMapSpeedWriteCmdEbm`) and for 100 / 102 / 200
+(`EngineMapWriteCmdV…`, five parameters: peak power, responsiveness, acceleration, overrun and de-rating for the
+M40 mid drive); **this app writes none of them**.
+
+How the app uses it: it reads first, and refuses to write unless it received exactly three maps, numbered one
+after another, all of the percentage kind, and the bike is standing still. Before writing it stores the
+values it had (`previous`, and `original` the first time ever), writes level by level waiting for each OK, reads
+everything back and compares (a 35 is expected to read back as 34). Unverified on a real bike when this was
+written: the exact reply layout (the 255 fill) and whether a read of map 0 returns three frames; if the bike
+does not, the app asks for maps 1, 2 and 3 one by one.
+
 ## Not in the bike at all
 
 Locking and unlocking the bike's assistance goes through Mahle's cloud (a personal key tied to an account):

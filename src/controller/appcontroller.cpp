@@ -23,6 +23,11 @@ constexpr int kAutoStopIdleS = 300;
 constexpr int kFlushEverySeconds = 15;
 constexpr int kAssistVerifyMs = 3500;
 constexpr int kMinCommandGapMs = 400;
+constexpr int kMapReplyTimeoutMs = 3500;   // maps asked for, bike silent
+constexpr int kMapAckTimeoutMs = 5000;     // the official app waits 5 s for a write's OK, three tries
+constexpr int kMapWriteTries = 3;
+constexpr int kMapMinPercent = 30;         // the official app warns below this
+constexpr double kMapStandstillKmh = 1.0;
 // A bike that is off is looked for ever less often: every 30 s, then once a minute.
 const int kRetryDelaysS[] = { 3, 5, 10, 20, 30, 30, 30, 60 };
 constexpr int kSilentHintAfterS = 12;   // connected, but not one data frame yet
@@ -99,6 +104,9 @@ AppController::AppController(QObject *parent)
     m_liveTimer.setSingleShot(true);
     m_liveTimer.setInterval(kLiveIntervalMs);
     connect(&m_liveTimer, &QTimer::timeout, this, &AppController::publishLive);
+
+    m_mapTimer.setSingleShot(true);
+    connect(&m_mapTimer, &QTimer::timeout, this, &AppController::mapsOnTimeout);
 
     m_demoTimer.setInterval(1000);
     connect(&m_demoTimer, &QTimer::timeout, this, &AppController::demoTick);
@@ -463,6 +471,7 @@ void AppController::disconnectNow()
     m_retry.stop();
     m_pendingAssist = -1;
     m_scanner.stopDiscovery();
+    mapsReset();
     m_link.close(true);
     m_gotFrame = false;
     setLink(0, hasBike() ? tr("Disconnected") : tr("No bike chosen"));
@@ -523,6 +532,7 @@ void AppController::scheduleRetry(const QString &because)
 
 void AppController::onOpened()
 {
+    mapsReset();
     m_attempt = 0;
     m_gotFrame = false;
     m_framesSinceOpen = 0;
@@ -536,6 +546,7 @@ void AppController::onOpened()
 
 void AppController::onFailed(const QString &text)
 {
+    mapsReset();
     logEvent(text);
     m_gotFrame = false;
     scheduleRetry(text);
@@ -543,6 +554,7 @@ void AppController::onFailed(const QString &text)
 
 void AppController::onLost()
 {
+    mapsReset();
     logEvent(tr("The bike disconnected"));
     m_gotFrame = false;
     m_pendingAssist = -1;
@@ -585,13 +597,13 @@ void AppController::handshake()
     });
 }
 
-bool AppController::sendCommand(const Mahle::Bytes &bytes, const char *what)
+bool AppController::sendCommand(const Mahle::Bytes &bytes, const char *what, bool ignoreGap)
 {
     if (!linkOpen()) {
         emit message(tr("Not connected to the bike"));
         return false;
     }
-    if (m_sinceCommand.isValid() && m_sinceCommand.elapsed() < kMinCommandGapMs) {
+    if (!ignoreGap && m_sinceCommand.isValid() && m_sinceCommand.elapsed() < kMinCommandGapMs) {
         emit message(tr("One moment…"));
         return false;
     }
@@ -623,6 +635,7 @@ void AppController::startDemo()
     m_parser.reset();
     m_live.clear();
     m_demo = true;
+    mapsReset();
     m_demoBike = Mahle::Demo::Bike();
     m_gotFrame = false;
     m_framesSinceOpen = 0;
@@ -644,6 +657,9 @@ void AppController::stopDemo()
 {
     if (!m_demo)
         return;
+    m_mapTimer.stop();
+    m_mapState = MapIdle;
+    m_mapReadThisSession = false;
     m_demoTimer.stop();
     if (recording())
         stopRecording();
@@ -719,6 +735,45 @@ void AppController::handleFrame(const QByteArray &data)
     }
     if (bikeChangedNow)
         emit bikeChanged();
+
+    if (kind == Mahle::Kind::MapData) {
+        // A bike that answers a write with the map itself instead of an OK counts as accepting it.
+        if (m_mapState == MapWriting && m_mapAckPending && !m_mapQueue.isEmpty()) {
+            const auto &got = m_parser.maps();
+            const auto it = got.find(m_mapQueue.first().first);
+            if (it != got.end() && it->second.writeFlag
+                && it->second.percent == Mahle::mapSafePercent(m_mapQueue.first().second)) {
+                m_mapAckPending = false;
+                m_mapTimer.stop();
+                logEvent(tr("The bike accepted map %1").arg(m_mapQueue.first().first));
+                m_mapQueue.removeFirst();
+                m_mapTries = 0;
+                mapsWriteStep();
+                scheduleLive();
+                return;
+            }
+        }
+        if (m_mapState == MapReading && m_parser.maps().size() >= 3)
+            mapsFinishRead();
+        else if (m_mapState == MapVerifying && m_parser.maps().size() >= int(m_mapExpected.size()))
+            mapsFinishRead();
+        else
+            mapsPublish();
+    } else if (kind == Mahle::Kind::MapAck) {
+        m_mapAck = QString::fromStdString(m_parser.lastMapAck());
+        if (m_mapState == MapWriting && m_mapAckPending) {
+            m_mapAckPending = false;
+            m_mapTimer.stop();
+            if (m_mapAck == QLatin1String("OK")) {
+                logEvent(tr("The bike accepted map %1").arg(m_mapQueue.first().first));
+                m_mapQueue.removeFirst();
+                m_mapTries = 0;
+                mapsWriteStep();
+            } else {
+                mapsAbort(tr("The bike refused map %1 (%2)").arg(m_mapQueue.first().first).arg(m_mapAck));
+            }
+        }
+    }
 
     scheduleLive();
 }
@@ -882,6 +937,276 @@ bool AppController::syncClock()
     logEvent(tr("Clock set to %1").arg(now.toString(QStringLiteral("HH:mm"))));
     emit message(tr("Bike clock set to %1").arg(now.toString(QStringLiteral("HH:mm"))));
     return true;
+}
+
+// ---- motor maps ------------------------------------------------------------------------------
+
+QVariantList AppController::mapsStored(const QString &which) const
+{
+    return m_settings->value(QStringLiteral("maps/%1/%2").arg(m_bikeAddress.isEmpty() ? QStringLiteral("demo") : m_bikeAddress, which))
+            .toList();
+}
+
+void AppController::mapsStore(const QString &which, const QVariantList &percents)
+{
+    saveSetting(QStringLiteral("maps/%1/%2").arg(m_bikeAddress.isEmpty() ? QStringLiteral("demo") : m_bikeAddress, which),
+                percents);
+}
+
+void AppController::mapsPublish(const QString &message)
+{
+    QVariantMap info;
+    static const char *const states[] = { "idle", "reading", "writing", "verifying" };
+    info.insert(QStringLiteral("state"), QLatin1String(states[m_mapState]));
+    QVariantList list;
+    bool percentLayout = true;
+    for (const auto &e : m_parser.maps()) {
+        QVariantMap one;
+        one.insert(QStringLiteral("map"), e.second.map);
+        one.insert(QStringLiteral("percent"), e.second.percent);
+        one.insert(QStringLiteral("isPercent"), e.second.isPercent());
+        list.append(one);
+        if (!e.second.isPercent())
+            percentLayout = false;
+    }
+    info.insert(QStringLiteral("maps"), list);
+    info.insert(QStringLiteral("known"), m_mapReadThisSession && !list.isEmpty());
+    info.insert(QStringLiteral("percentLayout"), percentLayout && !list.isEmpty());
+    QString why;
+    info.insert(QStringLiteral("writable"), mapsWritable(&why));
+    info.insert(QStringLiteral("whyNot"), why);
+    info.insert(QStringLiteral("previous"), mapsStored(QStringLiteral("previous")));
+    info.insert(QStringLiteral("original"), mapsStored(QStringLiteral("original")));
+    info.insert(QStringLiteral("message"), message.isEmpty() ? m_mapsInfo.value(QStringLiteral("message")) : QVariant(message));
+    m_mapsInfo = info;
+    emit motorMapsChanged();
+}
+
+// Whether a write may be attempted right now, and if not, why not.
+bool AppController::mapsWritable(QString *why) const
+{
+    auto no = [&](const QString &text) {
+        if (why)
+            *why = text;
+        return false;
+    };
+    if (!m_controlEnabled)
+        return no(tr("Bike controls are off. Turn them on in Settings."));
+    if (!linkOpen())
+        return no(tr("Not connected to the bike"));
+    if (m_mapState != MapIdle)
+        return no(tr("Working…"));
+    const auto &maps = m_parser.maps();
+    if (!m_mapReadThisSession || maps.size() != 3)
+        return no(tr("Read the bike's maps first"));
+    int expect = maps.begin()->first;
+    for (const auto &e : maps) {
+        if (!e.second.isPercent())
+            return no(tr("This bike's maps are not simple percentages, so the app does not write them."));
+        if (e.first != expect++)
+            return no(tr("The bike's maps are not numbered one after another."));
+    }
+    const auto &motor = m_parser.motor();
+    if (motor && fresh(3000) && motor->speedKmh >= kMapStandstillKmh)
+        return no(tr("Stop the bike first"));
+    return true;
+}
+
+void AppController::mapsReset()
+{
+    m_mapTimer.stop();
+    m_mapState = MapIdle;
+    m_mapQueue.clear();
+    m_mapExpected.clear();
+    m_mapAckPending = false;
+    m_mapReadThisSession = false;
+    m_parser.clearMaps();
+    mapsPublish(QString());
+}
+
+void AppController::readMotorMaps()
+{
+    if (!linkOpen()) {
+        emit message(tr("Not connected to the bike"));
+        return;
+    }
+    if (m_mapState != MapIdle)
+        return;
+    m_parser.clearMaps();
+    m_mapReadThisSession = false;
+    m_mapFallbackTried = false;
+    m_mapState = MapReading;
+    logEvent(tr("Reading the motor maps"));
+    mapsPublish(tr("Reading…"));
+    if (!sendCommand(Mahle::cmdMapRead(0), "map-read", true)) {
+        m_mapState = MapIdle;
+        mapsPublish();
+        return;
+    }
+    m_mapTimer.start(kMapReplyTimeoutMs);
+}
+
+void AppController::mapsFinishRead()
+{
+    m_mapTimer.stop();
+    const bool verifying = m_mapState == MapVerifying;
+    m_mapState = MapIdle;
+    m_mapReadThisSession = !m_parser.maps().empty();
+    if (!verifying) {
+        logEvent(tr("The bike has %1 motor maps").arg(int(m_parser.maps().size())));
+        mapsPublish(m_parser.maps().empty() ? tr("The bike did not answer. This bike may not have motor maps this app understands.")
+                                            : tr("Maps read"));
+        return;
+    }
+    // Verification: every map must hold what was written (the bike's 34 for a 35, and so on).
+    QStringList bad;
+    for (const auto &want : m_mapExpected) {
+        const auto it = m_parser.maps().find(want.first);
+        if (it == m_parser.maps().end() || it->second.percent != Mahle::mapSafePercent(want.second))
+            bad.append(QString::number(want.first));
+    }
+    m_mapExpected.clear();
+    if (bad.isEmpty()) {
+        logEvent(tr("Motor maps written and checked"));
+        mapsPublish(tr("Written and checked"));
+        emit message(tr("Motor maps written"));
+    } else {
+        const QString text = tr("Read back, but map %1 does not hold what was written").arg(bad.join(QStringLiteral(", ")));
+        logEvent(text);
+        mapsPublish(text);
+        emit message(text);
+    }
+}
+
+void AppController::mapsAbort(const QString &why)
+{
+    m_mapTimer.stop();
+    m_mapState = MapIdle;
+    m_mapQueue.clear();
+    m_mapAckPending = false;
+    logEvent(why);
+    mapsPublish(why + QLatin1Char(' ') + tr("The previous values are saved: use Restore."));
+    emit message(why);
+}
+
+void AppController::mapsOnTimeout()
+{
+    if (m_mapState == MapReading) {
+        if (m_parser.maps().size() >= 3 || m_mapFallbackTried) {
+            mapsFinishRead();
+            return;
+        }
+        // The official app asks for map 0 and gets every map. A bike that answers that with fewer is
+        // asked for each one (reading is harmless).
+        m_mapFallbackTried = true;
+        logEvent(tr("Asking for the maps one by one"));
+        for (int n = 1; n <= 3; ++n)
+            QTimer::singleShot(250 * n, this, [this, n]() {
+                if (m_mapState == MapReading)
+                    sendCommand(Mahle::cmdMapRead(n), "map-read", true);
+            });
+        m_mapTimer.start(kMapReplyTimeoutMs);
+    } else if (m_mapState == MapVerifying) {
+        mapsFinishRead();
+    } else if (m_mapState == MapWriting && m_mapAckPending) {
+        if (++m_mapTries >= kMapWriteTries) {
+            mapsAbort(tr("The bike did not answer map %1").arg(m_mapQueue.first().first));
+            return;
+        }
+        logEvent(tr("No answer to map %1, trying again").arg(m_mapQueue.first().first));
+        mapsWriteStep();
+    }
+}
+
+bool AppController::writeMotorMaps(const QVariantList &percents)
+{
+    QString why;
+    if (!mapsWritable(&why)) {
+        emit message(why);
+        return false;
+    }
+    if (percents.size() != 3) {
+        emit message(tr("Three values are needed, one per assist level"));
+        return false;
+    }
+    QList<int> values;
+    for (const QVariant &v : percents) {
+        const int p = v.toInt();
+        if (p < kMapMinPercent || p > 100) {
+            emit message(tr("Each value must be between %1 and 100 %").arg(kMapMinPercent));
+            return false;
+        }
+        values.append(p);
+    }
+    return startMapWrite(values);
+}
+
+bool AppController::startMapWrite(const QList<int> &values)
+{
+    // What the bike holds now is kept before anything changes: "previous" is the state before this
+    // write, "original" the very first state ever seen, never overwritten.
+    QVariantList now;
+    QList<int> numbers;
+    for (const auto &e : m_parser.maps()) {
+        now.append(e.second.percent);
+        numbers.append(e.first);
+    }
+    mapsStore(QStringLiteral("previous"), now);
+    if (mapsStored(QStringLiteral("original")).isEmpty())
+        mapsStore(QStringLiteral("original"), now);
+
+    m_mapQueue.clear();
+    for (int i = 0; i < 3; ++i)
+        m_mapQueue.append(qMakePair(numbers.at(i), values.at(i)));
+    m_mapExpected = m_mapQueue;
+    m_mapTries = 0;
+    m_mapState = MapWriting;
+    logEvent(tr("Writing motor maps %1 / %2 / %3 %").arg(values.at(0)).arg(values.at(1)).arg(values.at(2)));
+    mapsPublish(tr("Writing…"));
+    mapsWriteStep();
+    return true;
+}
+
+void AppController::mapsWriteStep()
+{
+    if (m_mapQueue.isEmpty()) {
+        // Everything is acknowledged: read the maps back to see that they hold.
+        m_mapState = MapVerifying;
+        m_parser.clearMaps();
+        mapsPublish(tr("Checking…"));
+        if (!sendCommand(Mahle::cmdMapRead(0), "map-read", true)) {
+            mapsAbort(tr("Could not read the maps back"));
+            return;
+        }
+        m_mapTimer.start(kMapReplyTimeoutMs);
+        return;
+    }
+    const auto step = m_mapQueue.first();
+    m_mapAckPending = true;
+    m_mapAck.clear();
+    if (!sendCommand(Mahle::cmdMapWritePercent(step.first, step.second), "map-write", true)) {
+        mapsAbort(tr("Could not send map %1").arg(step.first));
+        return;
+    }
+    m_mapTimer.start(kMapAckTimeoutMs);
+}
+
+bool AppController::restoreMotorMaps(const QString &which)
+{
+    const QVariantList stored = mapsStored(which);
+    if (stored.size() != 3) {
+        emit message(tr("There is nothing saved to restore"));
+        return false;
+    }
+    QString why;
+    if (!mapsWritable(&why)) {
+        emit message(why);
+        return false;
+    }
+    QList<int> values;
+    for (const QVariant &v : stored)
+        values.append(qBound(0, v.toInt(), 100));
+    return startMapWrite(values);
 }
 
 // ---- recording -------------------------------------------------------------------------------

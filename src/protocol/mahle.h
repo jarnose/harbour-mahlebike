@@ -18,7 +18,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <optional>
+#include <utility>
 #include <string>
 #include <vector>
 
@@ -56,6 +58,16 @@ Bytes cmdProtocol();                  // $S$P#@
 // assistance off. The current level is in every motor frame anyway.
 Bytes cmdAssistSet(int level);
 Bytes cmdResetTrip();                 // $M$R#@
+
+// Motor maps ("Eco", "Sport" ...). On an X35-type bike there is one map per assist level 1..3 and each is
+// a single power percentage. Both commands are 20 bytes: "$M$M#" + R or W + the map number as a digit,
+// ten zero bytes, a value byte (zero in a read) and "#@". A read of map 0 makes the bike send every
+// map; the official app only ever asks for 0. The bike answers a write with "$m$M#OK#@" (or "ER").
+Bytes cmdMapRead(int map);
+Bytes cmdMapWritePercent(int map, int percent);
+// What the bike is actually told for a percentage: the official app swaps 35 and 64, which are the
+// characters '#' and '@' and would be read as the end of the frame, for 34 and 65.
+int mapSafePercent(int percent);
 Bytes cmdSetClock(int hour, int minute); // $S$T#HH:mm#@
 
 // The official app's end-of-session command. Starting a diagnosis session ($D$I#@) is not
@@ -108,6 +120,18 @@ struct Ebm
     std::optional<int> remoteSoc;
 };
 
+// One motor map as the bike reports it.
+struct MapEntry
+{
+    int map = 0;
+    bool writeFlag = false;     // the reply's R / W byte
+    int percent = 0;            // byte 17: the power percentage of an X35-type map
+    // (speed km/h, power %) pairs of a curve-type map; empty for a percentage map.
+    std::vector<std::pair<int, int>> points;
+    Bytes raw;
+    bool isPercent() const { return points.empty(); }
+};
+
 struct AssistRange
 {
     int min = 0;
@@ -122,6 +146,8 @@ enum class Kind {
     Motor,
     Ebm,
     Assist,       // $m$A#<min><max><cur>#@
+    MapData,      // $m$M#: one motor map
+    MapAck,       // $m$M#OK#@ or $m$M#ER#@
     AssistAck,    // $m$A#OK#@ (or another word: see ackOk)
     Vin,
     ProtocolReply,
@@ -163,6 +189,12 @@ public:
     // The last $m$A#xx#@ acknowledgement, empty until one arrives.
     const std::string &lastAck() const { return m_lastAck; }
 
+    // Motor maps received since the last clearMaps(), by map number.
+    const std::map<int, MapEntry> &maps() const { return m_maps; }
+    void clearMaps() { m_maps.clear(); m_lastMapAck.clear(); }
+    // The last "$m$M#OK#@" / "ER" answer to a map write, empty until one arrives.
+    const std::string &lastMapAck() const { return m_lastMapAck; }
+
     // Whether a second battery is installed. A battery_number == 2 frame says yes; four main-pack
     // frames in a row without one say no.
     bool hasSecondBattery() const { return m_battery2.has_value() && m_secondBatteryAlive; }
@@ -188,6 +220,8 @@ private:
     std::optional<Ebm> m_ebm;
     std::optional<AssistRange> m_assist;
     std::string m_lastAck;
+    std::map<int, MapEntry> m_maps;
+    std::string m_lastMapAck;
     int m_primaryRun = 0;
     bool m_secondBatteryAlive = false;
     Bytes m_pending; // the start of a text reply still waiting for its tail

@@ -58,6 +58,9 @@ class AppController : public QObject
     Q_PROPERTY(bool keepScreenOn READ keepScreenOn WRITE setKeepScreenOn NOTIFY settingsChanged)
     Q_PROPERTY(bool traceFrames READ traceFrames WRITE setTraceFrames NOTIFY settingsChanged)
 
+    // The bike's motor maps and what the app is doing with them: state ("idle", "reading", "writing",
+    // "verifying"), known, maps [{map, percent}], percentLayout, writable, backups, message.
+    Q_PROPERTY(QVariantMap motorMaps READ motorMaps NOTIFY motorMapsChanged)
     Q_PROPERTY(QString logText READ logText NOTIFY logChanged)
     Q_PROPERTY(QString frameLogText READ frameLogText NOTIFY frameLogChanged)
     Q_PROPERTY(QString version READ version CONSTANT)
@@ -90,6 +93,7 @@ public:
     bool useGps() const { return m_useGps; }
     bool keepScreenOn() const { return m_keepScreenOn; }
     bool traceFrames() const { return m_traceFrames; }
+    QVariantMap motorMaps() const { return m_mapsInfo; }
     QString logText() const { return m_log.join(QLatin1Char('\n')); }
     QString frameLogText() const;
     QString version() const;
@@ -121,6 +125,13 @@ public:
     Q_INVOKABLE bool resetTrip();
     Q_INVOKABLE bool syncClock();
 
+    // Motor maps. A read asks the bike for all of them (read-only). A write takes one percentage per
+    // assist level (1..3), keeps a backup of what the bike had, writes the maps one by one waiting for
+    // the bike's OK, and reads them back to check. "which" is "previous" or "original".
+    Q_INVOKABLE void readMotorMaps();
+    Q_INVOKABLE bool writeMotorMaps(const QVariantList &percents);
+    Q_INVOKABLE bool restoreMotorMaps(const QString &which);
+
     // Rides
     Q_INVOKABLE bool startRecording();
     Q_INVOKABLE void stopRecording();
@@ -140,6 +151,7 @@ signals:
     void scanningChanged();
     void recordingChanged();
     void ridesChanged();
+    void motorMapsChanged();
     void recordingInfoChanged();
     void gpsChanged();
     void settingsChanged();
@@ -171,7 +183,7 @@ private:
     void scheduleRetry(const QString &because);
     void handshake();
     QVariantMap buildLive() const;
-    bool sendCommand(const Mahle::Bytes &bytes, const char *what);
+    bool sendCommand(const Mahle::Bytes &bytes, const char *what, bool ignoreGap = false);
     void sampleTick();
     void maybeAutoRecord(double speedKmh);
     void flushSamples();
@@ -181,6 +193,17 @@ private:
     bool fresh(int maxAgeMs) const;
     bool linkOpen() const { return m_demo || m_link.isOpen(); }
     void handleFrame(const QByteArray &data);
+    // Motor maps
+    void mapsFinishRead();
+    void mapsWriteStep();
+    void mapsAbort(const QString &why);
+    void mapsReset();
+    void mapsPublish(const QString &message = QString());
+    void mapsOnTimeout();
+    QVariantList mapsStored(const QString &which) const;
+    void mapsStore(const QString &which, const QVariantList &percents);
+    bool mapsWritable(QString *why) const;
+    bool startMapWrite(const QList<int> &values);
     Ride::Sample makeSample(qint64 nowMs) const;
     QString appDataDir() const;
 
@@ -202,6 +225,19 @@ private:
     QElapsedTimer m_sinceFrame;
     bool m_gotFrame = false;
     int m_framesSinceOpen = 0;
+
+    // Motor maps
+    enum MapState { MapIdle, MapReading, MapWriting, MapVerifying };
+    MapState m_mapState = MapIdle;
+    QTimer m_mapTimer;
+    bool m_mapFallbackTried = false;
+    bool m_mapReadThisSession = false;
+    QVariantMap m_mapsInfo;
+    QList<QPair<int, int>> m_mapQueue; // (map number, percent) still to write, the current one first
+    QList<QPair<int, int>> m_mapExpected; // everything this write is meant to leave in the bike
+    int m_mapTries = 0;
+    bool m_mapAckPending = false;
+    QString m_mapAck;
 
     // The pretend bike
     bool m_demo = false;

@@ -104,6 +104,28 @@ Bytes encodeAssistRange(int min, int max, int current)
     return Bytes(s.begin(), s.end());
 }
 
+Bytes encodeMapPercent(char op, int map, int percent)
+{
+    Bytes b(20, 0xff);
+    b[0] = '$';
+    b[1] = 'm';
+    b[2] = '$';
+    b[3] = 'M';
+    b[4] = '#';
+    b[5] = static_cast<uint8_t>(op);
+    b[6] = static_cast<uint8_t>('0' + map);
+    b[17] = static_cast<uint8_t>(percent);
+    b[18] = '#';
+    b[19] = '@';
+    return b;
+}
+
+Bytes encodeMapAck(bool ok)
+{
+    const std::string s = ok ? "$m$M#OK#@" : "$m$M#ER#@";
+    return Bytes(s.begin(), s.end());
+}
+
 Bike::Bike() = default;
 
 std::vector<Bytes> Bike::step(double dt)
@@ -174,6 +196,18 @@ std::vector<Bytes> Bike::receive(const Bytes &c)
         }
     } else if (s == "$M$R#@") {
         m_tripKm = 0;
+    } else if (c.size() == 20 && s.compare(0, 5, "$M$M#") == 0 && (c[5] == 'R' || c[5] == 'W')) {
+        const int map = c[6] - '0';
+        if (c[5] == 'R') {
+            for (int n = 1; n <= 3; ++n)
+                if (map == 0 || map == n)
+                    out.push_back(encodeMapPercent('R', n, m_maps[n - 1]));
+        } else if (map >= 1 && map <= 3 && c[17] <= 100) {
+            m_maps[map - 1] = c[17];
+            out.push_back(encodeMapAck(true));
+        } else {
+            out.push_back(encodeMapAck(false));
+        }
     }
     return out;
 }

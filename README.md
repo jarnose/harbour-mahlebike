@@ -7,6 +7,7 @@ others, and used with the My SmartBike app). It talks to the bike over Bluetooth
 * speed, assist level, battery charge (%, Wh, voltage, current, temperature, cycles, a second battery),
 * motor power and your own power (on bikes that report it), motor current and torque (on the older ones),
 * trip, odometer, range, the light, and the fault code with the device it belongs to,
+* **motor maps**: read the power per assist level and set Eco / Dynamic / Sport or your own values (X35-type bikes),
 
 and records **rides**: speed, power, battery and assist level once a second, with the phone's GPS track if
 you want one. A ride gets distance, time, averages, climb, battery used and Wh per km, charts, a sketch of

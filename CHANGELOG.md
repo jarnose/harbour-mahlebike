@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- Motor maps (Eco / Dynamic / Sport): reads the bike's maps, writes a preset or your own percentages for
+  assist levels 1 to 3, keeps what the bike had (the previous values and the very first seen) and offers to
+  restore them, and reads the maps back to check. X35-type percentage maps only; a bike with curve-type maps
+  is read but never written. Presets are the official app's: Eco 30/42/65, Dynamic 40/70/90, Sport 60/80/100.
+  Needs "Allow the app to control the bike"; refuses to write while the bike is moving.
+
 ## 0.1.0
 
 First version. Written from the protocol of the Home Assistant integration ha-mysmartbike_ble and

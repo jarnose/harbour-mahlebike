@@ -91,10 +91,44 @@ static void commands()
     CHECK(q.ebm()->tripKm.has_value() && *q.ebm()->tripKm < 0.01);
 }
 
+static void maps()
+{
+    Demo::Bike bike;
+    Parser p;
+    // Asking for map 0 gets all three, in the layout the parser calls a percentage map.
+    std::vector<Bytes> reply = bike.receive(cmdMapRead(0));
+    CHECK_EQ(reply.size(), size_t(3));
+    for (const Bytes &f : reply)
+        CHECK(p.feed(f) == Kind::MapData);
+    CHECK_EQ(p.maps().size(), size_t(3));
+    CHECK(p.maps().at(1).isPercent());
+    CHECK_EQ(p.maps().at(1).percent, 40);
+    CHECK_EQ(p.maps().at(3).percent, 90);
+
+    // A write is acknowledged and sticks; reading one map gets one frame.
+    reply = bike.receive(cmdMapWritePercent(2, 42));
+    CHECK_EQ(reply.size(), size_t(1));
+    CHECK(p.feed(reply[0]) == Kind::MapAck);
+    CHECK_EQ(p.lastMapAck(), std::string("OK"));
+    CHECK_EQ(bike.mapPercent(2), 42);
+    reply = bike.receive(cmdMapRead(2));
+    CHECK_EQ(reply.size(), size_t(1));
+    p.feed(reply[0]);
+    CHECK_EQ(p.maps().at(2).percent, 42);
+
+    // The 35 % the official app cannot send is stored as 34.
+    bike.receive(cmdMapWritePercent(3, 35));
+    CHECK_EQ(bike.mapPercent(3), 34);
+    // Nonsense is refused.
+    CHECK(p.feed(bike.receive(cmdMapWritePercent(9, 50))[0]) == Kind::MapAck);
+    CHECK_EQ(p.lastMapAck(), std::string("ER"));
+}
+
 int main()
 {
     encoders();
     ride();
     commands();
+    maps();
     return finish("demo");
 }

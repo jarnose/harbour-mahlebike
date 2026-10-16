@@ -151,6 +151,38 @@ Bytes cmdSetClock(int hour, int minute)
     return text(std::string("$S$T#") + buf + "#@");
 }
 
+static Bytes mapFrame(char op, int map, int value)
+{
+    Bytes b(20, 0);
+    const char head[] = { '$', 'M', '$', 'M', '#', op };
+    for (size_t i = 0; i < sizeof head; ++i)
+        b[i] = static_cast<uint8_t>(head[i]);
+    b[6] = static_cast<uint8_t>('0' + map);
+    b[17] = static_cast<uint8_t>(value);
+    b[18] = '#';
+    b[19] = '@';
+    return b;
+}
+
+Bytes cmdMapRead(int map)
+{
+    return mapFrame('R', map, 0);
+}
+
+int mapSafePercent(int percent)
+{
+    if (percent == 35)
+        return 34;
+    if (percent == 64)
+        return 65;
+    return percent;
+}
+
+Bytes cmdMapWritePercent(int map, int percent)
+{
+    return mapFrame('W', map, mapSafePercent(percent));
+}
+
 const char *kindName(Kind k)
 {
     switch (k) {
@@ -158,6 +190,8 @@ const char *kindName(Kind k)
     case Kind::Motor: return "motor";
     case Kind::Ebm: return "ebm";
     case Kind::Assist: return "assist";
+    case Kind::MapData: return "map";
+    case Kind::MapAck: return "map-ack";
     case Kind::AssistAck: return "assist-ack";
     case Kind::Vin: return "vin";
     case Kind::ProtocolReply: return "protocol";
@@ -287,7 +321,28 @@ Kind Parser::dispatch(const Bytes &f)
             }
             return Kind::Unknown;
         }
-        return Kind::Other; // maps, trip reset ack, traction control
+        if (h.sub == 'M') {
+            if (f.size() == 9) {
+                m_lastMapAck.assign(f.begin() + 5, f.begin() + 7);
+                return Kind::MapAck;
+            }
+            if (f.size() >= 20) {
+                MapEntry e;
+                e.raw = f;
+                e.writeFlag = f[5] == 'W';
+                if (f[6] < '0' || f[6] > '9')
+                    return Kind::Unknown;
+                e.map = f[6] - '0';
+                // Pairs at 7..15; a power byte of 255 means "no point". A percentage map has none.
+                for (size_t i = 7; i <= 15; i += 2)
+                    if (f[i + 1] < 255)
+                        e.points.emplace_back(f[i], f[i + 1]);
+                e.percent = f[17];
+                m_maps[e.map] = e;
+                return Kind::MapData;
+            }
+        }
+        return Kind::Other; // trip reset ack, traction control
     case 'j':
         if (h.sub != 'Z')
             return Kind::Unknown;

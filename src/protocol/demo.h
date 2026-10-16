@@ -23,6 +23,9 @@ Bytes encodeEbm20(double odometerKm, double rangeKm, bool light, int errorId, in
 Bytes encodeVin(const std::string &vin);
 Bytes encodeProtocol(const std::string &version);
 Bytes encodeAssistRange(int min, int max, int current);
+// A motor-map reply of an X35-type bike: no curve points (power bytes 255), the percentage in byte 17.
+Bytes encodeMapPercent(char op, int map, int percent);
+Bytes encodeMapAck(bool ok);
 
 class Bike
 {
@@ -36,6 +39,7 @@ public:
     std::vector<Bytes> receive(const Bytes &command);
 
     int assist() const { return m_assist; }
+    int mapPercent(int map) const { return map >= 1 && map <= 3 ? m_maps[map - 1] : -1; }
     double speedKmh() const { return m_speed; }
     double distanceKm() const { return m_distanceKm; }
     double remainingWh() const { return m_remainingWh; }
@@ -56,6 +60,7 @@ private:
     double m_riderW = 0;
     double m_currentA = 0;
     bool m_light = false;
+    int m_maps[3] = { 40, 70, 90 };
 };
 
 } // namespace Demo

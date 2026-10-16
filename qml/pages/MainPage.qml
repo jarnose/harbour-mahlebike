@@ -32,6 +32,11 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("LogPage.qml"))
             }
             MenuItem {
+                visible: AppController.hasBike
+                text: qsTr("Motor maps")
+                onClicked: pageStack.push(Qt.resolvedUrl("MotorMapsPage.qml"))
+            }
+            MenuItem {
                 text: qsTr("Settings")
                 onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }

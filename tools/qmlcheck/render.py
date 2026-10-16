@@ -179,6 +179,16 @@ class App(QObject):
     bikes = Property(QObject, lambda s: s._bikes, constant=True)
     rides = Property(QObject, lambda s: s._rides, constant=True)
 
+    motorMaps = Property("QVariantMap", lambda s: s.s.get("motorMaps", dict(state="idle", known=True, percentLayout=True,
+                         writable=True, whyNot="", message="Maps read", maps=[dict(map=1, percent=40, isPercent=True),
+                         dict(map=2, percent=70, isPercent=True), dict(map=3, percent=90, isPercent=True)],
+                         previous=[30, 42, 65], original=[40, 70, 90])), constant=True)
+    @Slot()
+    def readMotorMaps(self): pass
+    @Slot("QVariantList", result=bool)
+    def writeMotorMaps(self, p): return True
+    @Slot(str, result=bool)
+    def restoreMotorMaps(self, w): return True
     @Slot()
     def startScan(self): pass
     @Slot()
@@ -251,6 +261,12 @@ CASES = [
                                                   "motorCurrentA": 0.0, "torquePct": 0, "odometerKm": 568.1,
                                                   "rangeKm": 78.2, "light": False, "errorCode": 0,
                                                   "assistLow": 0, "assistHigh": 5}}, {}),
+    ("maps", "pages/MotorMapsPage.qml", {}, {"_tall": True}),
+    ("maps_unknown", "pages/MotorMapsPage.qml", {"motorMaps": dict(state="idle", known=False, writable=False,
+                      whyNot="Read the bike's maps first", maps=[], previous=[], original=[], message="")}, {"_tall": True}),
+    ("maps_busy", "pages/MotorMapsPage.qml", {"motorMaps": dict(state="writing", known=True, percentLayout=True, writable=False,
+                  whyNot="Working…", message="Writing…", maps=[dict(map=1, percent=40, isPercent=True),
+                  dict(map=2, percent=70, isPercent=True), dict(map=3, percent=90, isPercent=True)], previous=[], original=[])}, {"_tall": True}),
     ("bikes", "pages/BikesPage.qml", {"scanning": True}, {}),
     ("rides", "pages/RidesPage.qml", {}, {}),
     ("rides_empty", "pages/RidesPage.qml", {"rideCount": 0}, {}),

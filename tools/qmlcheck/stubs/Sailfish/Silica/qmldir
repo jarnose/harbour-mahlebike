@@ -35,3 +35,5 @@ FadeAnimation 1.0 FadeAnimation.qml
 singleton Orientation 1.0 Orientation.qml
 singleton PageStatus 1.0 PageStatus.qml
 IconSource 1.0 IconSource.qml
+Slider 1.0 Slider.qml
+BackgroundItem 1.0 BackgroundItem.qml

@@ -364,6 +364,52 @@ static void vin()
     CHECK_EQ(s.vin(), vin);
 }
 
+static void motorMaps()
+{
+    // The commands are 20 bytes: "$M$M#" R/W, the map digit, ten zeros, the value, "#@".
+    CHECK_EQ(toHex(cmdMapRead(0)), std::string("244d244d2352300000000000000000000000" "2340"));
+    CHECK_EQ(toHex(cmdMapWritePercent(2, 42)), std::string("244d244d235732" "00000000000000000000" "2a" "2340"));
+    CHECK_EQ(cmdMapRead(3).size(), size_t(20));
+    // 35 and 64 are '#' and '@': the official app writes 34 and 65.
+    CHECK_EQ(mapSafePercent(35), 34);
+    CHECK_EQ(mapSafePercent(64), 65);
+    CHECK_EQ(mapSafePercent(30), 30);
+    CHECK_EQ(cmdMapWritePercent(1, 35)[17], uint8_t(34));
+    CHECK_EQ(cmdMapWritePercent(1, 64)[17], uint8_t(65));
+
+    // A percentage map: no curve points (power bytes 255), the value in byte 17.
+    Bytes reply(20, 0xff);
+    reply[0] = '$'; reply[1] = 'm'; reply[2] = '$'; reply[3] = 'M'; reply[4] = '#';
+    reply[5] = 'R'; reply[6] = '2'; reply[17] = 70; reply[18] = '#'; reply[19] = '@';
+    Parser p;
+    CHECK(p.feed(reply) == Kind::MapData);
+    CHECK_EQ(p.maps().size(), size_t(1));
+    CHECK(p.maps().at(2).isPercent());
+    CHECK_EQ(p.maps().at(2).percent, 70);
+    CHECK(!p.maps().at(2).writeFlag);
+
+    // A curve map has (speed, power) pairs.
+    Bytes curve = reply;
+    curve[7] = 10; curve[8] = 50; curve[9] = 25; curve[10] = 100;
+    Parser q;
+    q.feed(curve);
+    CHECK(!q.maps().at(2).isPercent());
+    CHECK_EQ(q.maps().at(2).points.size(), size_t(2));
+    CHECK_EQ(q.maps().at(2).points[1].first, 25);
+
+    CHECK(p.feed(fromHex("246d244d234f4b2340")) == Kind::MapAck);
+    CHECK_EQ(p.lastMapAck(), std::string("OK"));
+    CHECK(p.feed(fromHex("246d244d2345522340")) == Kind::MapAck);
+    CHECK_EQ(p.lastMapAck(), std::string("ER"));
+    p.clearMaps();
+    CHECK(p.maps().empty() && p.lastMapAck().empty());
+
+    // A map number that is not a digit is not a map.
+    Bytes bad = reply;
+    bad[6] = 'x';
+    CHECK(Parser().feed(bad) == Kind::Unknown);
+}
+
 static void noise()
 {
     Parser p;
@@ -393,6 +439,7 @@ int main()
     ebmV200();
     ebmLayoutBeforeTheHandshake();
     assist();
+    motorMaps();
     vin();
     noise();
     return finish("mahle");
