@@ -83,6 +83,41 @@ double haversineM(double lat1, double lon1, double lat2, double lon2)
     return 2 * r * std::asin(std::min(1.0, std::sqrt(a)));
 }
 
+std::vector<double> cleanAltitude(const std::vector<Sample> &samples)
+{
+    std::vector<double> out(samples.size(), NAN);
+    std::vector<double> recent; // the last ten accepted readings
+    int rejectedRun = 0;
+    bool moved = false;
+    for (size_t i = 0; i < samples.size(); ++i) {
+        const Sample &x = samples[i];
+        if (x.speedKmh >= kMovingKmh)
+            moved = true;
+        if (!moved || std::isnan(x.alt))
+            continue;
+        bool accept = true;
+        if (!recent.empty()) {
+            std::vector<double> sorted = recent;
+            std::sort(sorted.begin(), sorted.end());
+            const double median = sorted[sorted.size() / 2];
+            if (std::fabs(x.alt - median) > 15.0 && rejectedRun < 10)
+                accept = false;
+        }
+        if (!accept) {
+            ++rejectedRun;
+            continue;
+        }
+        if (rejectedRun >= 10)
+            recent.clear(); // ten in a row agreed on a new level: the old median was the wrong one
+        rejectedRun = 0;
+        out[i] = x.alt;
+        recent.push_back(x.alt);
+        if (recent.size() > 10)
+            recent.erase(recent.begin());
+    }
+    return out;
+}
+
 Stats computeStats(const std::vector<Sample> &samples)
 {
     Stats s;
@@ -155,13 +190,13 @@ Stats computeStats(const std::vector<Sample> &samples)
             s.whPerKm = s.energyWh / s.distanceKm;
     }
 
-    // Ascent: GPS altitude is noisy, so average over a window, then count a climb only after it
-    // has gone 3 m above the last low point.
+    // Ascent and descent: GPS altitude is noisy, so clean it, average over a window, then count a climb
+    // (or a drop) only after it has gone 3 m beyond the last turning point.
     s.hasTrack = fixes >= 2;
     std::vector<double> alt;
-    for (const Sample &x : samples)
-        if (!std::isnan(x.alt))
-            alt.push_back(x.alt);
+    for (double a : cleanAltitude(samples))
+        if (!std::isnan(a))
+            alt.push_back(a);
     if (alt.size() >= 5) {
         const size_t window = 5;
         std::vector<double> smooth(alt.size());
@@ -173,13 +208,19 @@ Stats computeStats(const std::vector<Sample> &samples)
                 sum += alt[j];
             smooth[i] = sum / (hi - lo + 1);
         }
-        double ref = smooth.front();
+        double top = smooth.front(), bottom = smooth.front();
         for (double a : smooth) {
-            if (a > ref + 3.0) {
-                s.ascentM += a - ref;
-                ref = a;
-            } else if (a < ref) {
-                ref = a;
+            if (a > bottom + 3.0) {
+                s.ascentM += a - bottom;
+                bottom = a;
+                top = a;
+            } else if (a < top - 3.0) {
+                s.descentM += top - a;
+                top = a;
+                bottom = a;
+            } else {
+                bottom = std::min(bottom, a);
+                top = std::max(top, a);
             }
         }
     }
@@ -202,12 +243,14 @@ std::string toGpx(const std::vector<Sample> &samples, const std::string &name)
     out += "  <metadata><name>" + xmlEscape(name) + "</name><time>" + isoUtc(samples.front().tMs)
            + "</time></metadata>\n";
     out += "  <trk>\n    <name>" + xmlEscape(name) + "</name>\n    <trkseg>\n";
-    for (const Sample &x : samples) {
+    const std::vector<double> altitude = cleanAltitude(samples);
+    for (size_t i = 0; i < samples.size(); ++i) {
+        const Sample &x = samples[i];
         if (!x.hasFix())
             continue;
         out += "      <trkpt lat=\"" + number(x.lat, 7) + "\" lon=\"" + number(x.lon, 7) + "\">";
-        if (!std::isnan(x.alt))
-            out += "<ele>" + number(x.alt, 1) + "</ele>";
+        if (!std::isnan(altitude[i]))
+            out += "<ele>" + number(altitude[i], 1) + "</ele>";
         out += "<time>" + isoUtc(x.tMs) + "</time><extensions>";
         out += "<mb:speed>" + number(x.speedKmh, 1) + "</mb:speed>";
         out += "<mb:assist>" + std::to_string(x.assist) + "</mb:assist>";

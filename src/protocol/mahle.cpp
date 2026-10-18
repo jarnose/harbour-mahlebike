@@ -282,6 +282,13 @@ std::string printable(const Bytes &frame)
     return out;
 }
 
+std::optional<double> estimatedMotorPowerW(const std::optional<Motor> &motor, const std::optional<Battery> &battery)
+{
+    if (!motor || !battery || motor->motorPowerW || !motor->currentAmp || battery->voltage <= 0)
+        return std::nullopt;
+    return *motor->currentAmp * battery->voltage;
+}
+
 void Parser::reset()
 {
     *this = Parser();

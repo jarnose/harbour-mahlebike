@@ -40,7 +40,8 @@ struct Stats
     double distanceKm = 0;        // the speed integrated over time; gaps are not bridged
     double avgSpeedKmh = 0;       // over the moving time
     double maxSpeedKmh = 0;
-    double ascentM = 0;           // GPS altitude, smoothed, with a hysteresis
+    double ascentM = 0;           // GPS altitude, cleaned and smoothed, with a hysteresis
+    double descentM = 0;
     double energyWh = 0;          // drained from the main battery, 0 when unknown
     double whPerKm = 0;
     int socStart = -1;
@@ -61,6 +62,13 @@ constexpr double kMovingKmh = 2.0;
 constexpr double kMaxGapS = 5.0;
 
 Stats computeStats(const std::vector<Sample> &samples);
+
+// The GPS altitude of each sample with the readings that cannot be right left out (NaN). A phone's GPS
+// reports a stale or wildly wrong altitude for the first seconds of a ride (a recorded ride jumped
+// between 128 m, 40 m and 100 m while standing still, which counted as 146 m of climb), so: nothing
+// before the first movement is trusted, and a reading more than 15 m from the median of the last ten
+// accepted ones is dropped, unless ten in a row disagree, which means the median was wrong.
+std::vector<double> cleanAltitude(const std::vector<Sample> &samples);
 
 // Great-circle distance between two fixes, metres.
 double haversineM(double lat1, double lon1, double lat2, double lon2);

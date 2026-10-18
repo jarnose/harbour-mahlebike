@@ -27,6 +27,8 @@ set(CORE_SOURCES
     src/protocol/mahle.cpp
     src/protocol/demo.cpp
     src/ride/ride.cpp
+    src/export/fit.cpp
+    src/export/fitcrc.cpp
 )
 
 add_executable(harbour-mahlebike

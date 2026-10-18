@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0
+
+- Ride export as **FIT** (sport cycling, sub-sport e-bike; the battery charge and assist level in the profile's
+  e-bike record fields; rider power only where the bike has it). The writer follows harbour-suuntosync's and is
+  checked against a decoder written for the test and against fitparse.
+- A bike that reports a current and no power (EBM, 100) now shows and records its motor power as voltage x
+  current, marked "from current". Checked on the iWoc8910 against the battery's own energy counter.
+- GPS altitude: the first seconds of a ride, when the phone's GPS reports stale or wild altitudes, no longer count
+  as climb (a recorded ride showed 146 m instead of about 55 m); descent is counted as well, and GPX / FIT carry the
+  cleaned altitude.
+
 ## 1.0.1
 
 - Bike information: the component VINs (`R<component><VIN>@`) are recognised instead of being logged as unknown

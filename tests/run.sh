@@ -21,3 +21,4 @@ run() {
 run mahle ../src/protocol/mahle.cpp
 run ride ../src/ride/ride.cpp
 run demo ../src/protocol/demo.cpp ../src/protocol/mahle.cpp
+run fit ../src/export/fit.cpp ../src/export/fitcrc.cpp ../src/ride/ride.cpp

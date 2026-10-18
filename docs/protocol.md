@@ -146,6 +146,14 @@ Frames recognised and deliberately not decoded: `$b$P` / `$b$R` (power source, 1
 wireless remote pairing, 200+), `$m$G` (traction control / auto hold, 200), `$m$M` / `$M$M` (motor maps),
 `$s$L` (blinking lights), `$d$…` (diagnosis), `$i$C` (calibration).
 
+## Power on a bike that reports none
+
+The EBM and 100 motor frames carry a current, not a power (the rider's power does not exist there at all). On
+the iWoc8910 the current in the motor frame and the one in the battery frame agree (correlation 0.98), and
+voltage times current, integrated over two rides, came to 10 Wh against the 8.9 Wh the battery's own remaining-Wh
+counter lost. The app therefore shows and records **voltage x current as the motor power, marked "from current"**;
+it is the motor's electrical power, not the rider's, and the FIT export does not write it in the `power` field.
+
 ## Motor maps (Eco / Dynamic / Sport)
 
 The official app's "motor maps" screen sets how much of its power the motor gives per assist level. The

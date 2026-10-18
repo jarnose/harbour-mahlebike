@@ -11,7 +11,8 @@ others, and used with the My SmartBike app). It talks to the bike over Bluetooth
 
 and records **rides**: speed, power, battery and assist level once a second, with the phone's GPS track if
 you want one. A ride gets distance, time, averages, climb, battery used and Wh per km, charts, a sketch of
-the route, and exports as **GPX** (the bike's readings as extensions) or CSV.
+the route, and exports as **FIT** (cycling / e-bike, with the battery charge and assist level in the e-bike fields, readable by
+Garmin Connect, Strava and others), **GPX** (the bike's readings as extensions) or CSV.
 
 Native C++/QML (Silica). No network permission, no account. Unofficial: not made, endorsed or supported by
 Mahle or any bike brand.

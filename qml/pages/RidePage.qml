@@ -56,6 +56,10 @@ Page {
                 onClicked: page.saved = AppController.exportRide(page.rideId, "csv")
             }
             MenuItem {
+                text: qsTr("Export as FIT")
+                onClicked: page.saved = AppController.exportRide(page.rideId, "fit")
+            }
+            MenuItem {
                 text: qsTr("Export as GPX")
                 visible: page.d.hasTrack === true
                 onClicked: page.saved = AppController.exportRide(page.rideId, "gpx")
@@ -154,7 +158,7 @@ Page {
                 }
                 StatTile {
                     width: page.tileWidth
-                    visible: page.d.hasPower === true
+                    visible: page.d.hasPower === true && page.d.maxRiderW > 0
                     value: Format.number(page.d.avgRiderW, 0)
                     unit: "W"
                     caption: qsTr("Your power (avg)")
@@ -205,11 +209,11 @@ Page {
             }
 
             SectionHeader {
-                visible: page.d.hasPower === true
+                visible: page.d.maxRiderW > 0
                 text: qsTr("Your power (W)")
             }
             LineChart {
-                visible: page.d.hasPower === true
+                visible: page.d.maxRiderW > 0
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
                 xs: page.d.xs ? page.d.xs : []

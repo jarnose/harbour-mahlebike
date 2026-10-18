@@ -123,6 +123,71 @@ static void ascent()
     CHECK(near(computeStats(f).ascentM, 0, 0.001));
 }
 
+static void altitudeCleaning()
+{
+    // The start of a real ride: a stale 128 m, then a GPS settling down while the rider still stood
+    // (the altitude fell to 40 m and came back to about 100 m), then the true level of about 110 m.
+    const double start[] = { 128.3, 128.3, 128.3, 128.3, 128.3, 62.0, 52.9, 39.5, 45.5, 62.4, 59.4, 99.9, 96.1, 93.0,
+                             97.6, 100.2, 104.0, 108.0, 110.5, 111.0, 110.2, 109.8 };
+    std::vector<Sample> v;
+    int t = 0;
+    for (double a : start) {
+        Sample x = at(t, t < 17 ? 0.0 : 18.0);
+        ++t;
+        x.alt = a;
+        v.push_back(x);
+    }
+    for (int i = 0; i < 120; ++i) {
+        Sample x = at(t++, 18.0);
+        x.alt = 110.0 + 0.2 * (i % 3);
+        v.push_back(x);
+    }
+    const std::vector<double> clean = cleanAltitude(v);
+    CHECK_EQ(clean.size(), v.size());
+    // Nothing before the first movement is trusted.
+    for (int i = 0; i < 17; ++i)
+        CHECK(std::isnan(clean[i]));
+    // After it, the level the rider is at.
+    CHECK(!std::isnan(clean[60]) && near(clean[60], 110.0, 1.0));
+    // The raw readings would have counted tens of metres of climb; the cleaned ones count none.
+    CHECK(computeStats(v).ascentM < 3.0);
+
+    // An isolated spike while riding is dropped.
+    std::vector<Sample> w;
+    for (int i = 0; i < 40; ++i) {
+        Sample x = at(i, 20.0);
+        x.alt = 100.0;
+        w.push_back(x);
+    }
+    w[20].alt = 190.0;
+    CHECK(std::isnan(cleanAltitude(w)[20]));
+    CHECK(computeStats(w).ascentM < 1.0);
+
+    // A real, lasting change of level is followed, not rejected for ever (a long climb is gradual, and so
+    // is a tunnel exit with a 30 m offset: ten in a row agree).
+    std::vector<Sample> u;
+    for (int i = 0; i < 60; ++i) {
+        Sample x = at(i, 20.0);
+        x.alt = i < 30 ? 100.0 : 140.0;
+        u.push_back(x);
+    }
+    const std::vector<double> c = cleanAltitude(u);
+    CHECK(!std::isnan(c[59]) && near(c[59], 140.0, 0.1));
+
+    // Descent is counted the same way as ascent.
+    std::vector<Sample> d;
+    double h = 150;
+    for (int i = 0; i < 120; ++i) {
+        h += i < 60 ? -0.5 : 0.25;
+        Sample x = at(i, 20.0);
+        x.alt = h;
+        d.push_back(x);
+    }
+    Stats ds = computeStats(d);
+    CHECK(near(ds.descentM, 30.0, 4.0));
+    CHECK(near(ds.ascentM, 15.0, 4.0));
+}
+
 static void haversine()
 {
     // Helsinki to Tampere, about 161 km as the crow flies.
@@ -171,6 +236,7 @@ int main()
     energy();
     power();
     ascent();
+    altitudeCleaning();
     haversine();
     gpx();
     csv();

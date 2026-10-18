@@ -181,6 +181,7 @@ RideStore::Summary RideStore::fromQuery(QSqlQuery &q)
     s.hasTrack = q.value(i++).toInt() != 0;
     s.odoStartKm = q.value(i++).toDouble();
     s.odoEndKm = q.value(i++).toDouble();
+    s.vin = q.value(i++).toString();
     return s;
 }
 
@@ -188,7 +189,7 @@ namespace {
 const char *kSummaryColumns =
         "id, start_ms, end_ms, name, device_name, distance_km, duration_s, moving_s, avg_kmh, max_kmh, ascent_m,"
         "energy_wh, wh_per_km, soc_start, soc_end, avg_motor_w, avg_rider_w, max_rider_w, has_energy, has_power,"
-        "has_track, odo_start_km, odo_end_km";
+        "has_track, odo_start_km, odo_end_km, vin";
 }
 
 QList<RideStore::Summary> RideStore::rides() const

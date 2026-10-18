@@ -1,5 +1,7 @@
 #include "appcontroller.h"
 
+#include "export/fit.h"
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -855,8 +857,13 @@ QVariantMap AppController::buildLive() const
         m.insert(QStringLiteral("assist"), motor->assistLevel);
         if (motor->temperatureValid())
             m.insert(QStringLiteral("motorTemp"), motor->temperature);
-        if (motor->motorPowerW)
+        if (motor->motorPowerW) {
             m.insert(QStringLiteral("motorPowerW"), *motor->motorPowerW);
+        } else if (const auto estimate = Mahle::estimatedMotorPowerW(motor, battery)) {
+            // A bike that reports only a current: the voltage times the current is its motor power.
+            m.insert(QStringLiteral("motorPowerW"), *estimate);
+            m.insert(QStringLiteral("motorPowerEstimated"), true);
+        }
         if (motor->riderPowerW)
             m.insert(QStringLiteral("riderPowerW"), *motor->riderPowerW);
         if (motor->currentAmp)
@@ -1566,6 +1573,8 @@ Ride::Sample AppController::makeSample(qint64 nowMs) const
         s.assist = motor->assistLevel;
         if (motor->motorPowerW)
             s.motorW = *motor->motorPowerW;
+        else if (const auto estimate = Mahle::estimatedMotorPowerW(motor, m_parser.battery()))
+            s.motorW = *estimate;
         if (motor->riderPowerW)
             s.riderW = *motor->riderPowerW;
         if (motor->temperatureValid())
@@ -1751,6 +1760,7 @@ QVariantMap AppController::rideDetail(qint64 id)
     const size_t kPoints = 240;
     const size_t n = samples.size();
     const size_t step = std::max<size_t>(1, (n + kPoints - 1) / kPoints);
+    const std::vector<double> cleanAlt = Ride::cleanAltitude(samples);
     QVariantList xs, speed, rider, motor, soc, alt;
     for (size_t i = 0; i < n; i += step) {
         const size_t end = std::min(n, i + step);
@@ -1762,7 +1772,7 @@ QVariantMap AppController::rideDetail(qint64 id)
             if (!std::isnan(x.riderW)) { rw += x.riderW; ++cr; }
             if (!std::isnan(x.motorW)) { mw += x.motorW; ++cm; }
             if (x.soc >= 0) { so += x.soc; ++cs; }
-            if (!std::isnan(x.alt)) { al += x.alt; ++ca; }
+            if (!std::isnan(cleanAlt[j])) { al += cleanAlt[j]; ++ca; }
         }
         xs.append(qint64(samples[i].tMs));
         speed.append(sp / double(end - i));
@@ -1828,7 +1838,15 @@ QString AppController::exportRide(qint64 id, const QString &format)
                                            : s.name;
     std::string body;
     QString extension;
-    if (format == QLatin1String("gpx")) {
+    if (format == QLatin1String("fit")) {
+        const std::vector<uint8_t> fit = Fit::encodeRide(samples, s.vin.toStdString());
+        if (fit.empty()) {
+            emit message(tr("This ride is too short to export."));
+            return QString();
+        }
+        body.assign(reinterpret_cast<const char *>(fit.data()), fit.size());
+        extension = QStringLiteral("fit");
+    } else if (format == QLatin1String("gpx")) {
         body = Ride::toGpx(samples, title.toStdString());
         extension = QStringLiteral("gpx");
         if (body.empty()) {

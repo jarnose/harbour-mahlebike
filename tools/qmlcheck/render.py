@@ -263,6 +263,7 @@ CASES = [
                                                              battery2={"soc": 88, "remainingWh": 310.0,
                                                                        "nominalWh": 360.0, "voltage": 37.9,
                                                                        "temp": 20})}, {}),
+    ("main_ebm", "pages/MainPage.qml", {"live": dict(LIVE, motorPowerEstimated=True, riderPowerW=None)}, {}),
     ("main_x35", "pages/MainPage.qml", {"live": {"speedKmh": 0.0, "assist": 1, "soc": 84, "voltage": 40.3,
                                                   "remainingWh": 181.8, "nominalWh": 216.7, "batteryTemp": 23,
                                                   "motorCurrentA": 0.0, "torquePct": 0, "odometerKm": 568.1,

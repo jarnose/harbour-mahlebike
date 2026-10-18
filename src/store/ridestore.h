@@ -21,6 +21,7 @@ public:
         qint64 endMs = 0; // 0 while the ride is still being recorded
         QString name;
         QString deviceName;
+        QString vin;
         double distanceKm = 0;
         double durationS = 0;
         double movingS = 0;

@@ -237,7 +237,7 @@ Page {
                     visible: page.live.motorPowerW !== undefined
                     value: Format.number(page.live.motorPowerW, 0)
                     unit: "W"
-                    caption: qsTr("Motor")
+                    caption: page.live.motorPowerEstimated === true ? qsTr("Motor (from current)") : qsTr("Motor")
                 }
                 StatTile {
                     width: page.tileWidth

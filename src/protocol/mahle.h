@@ -263,6 +263,13 @@ private:
     Bytes m_pending; // the start of a text reply still waiting for its tail
 };
 
+// A bike whose motor frame carries a current and no power (protocol EBM and 100) still has a motor power,
+// to within a few per cent: the battery voltage times the current. Measured on an iWoc8910, the current
+// in the motor frame and the one in the battery frame agree (correlation 0.98), and the voltage times the
+// current integrated over two rides came to 10 Wh against the 8.9 Wh the battery lost. Empty when the
+// frame has a real power, or lacks the numbers.
+std::optional<double> estimatedMotorPowerW(const std::optional<Motor> &motor, const std::optional<Battery> &battery);
+
 // The bytes of a frame as text, with anything unprintable shown as \xNN. For logs.
 std::string printable(const Bytes &frame);
 

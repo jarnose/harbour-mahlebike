@@ -461,6 +461,26 @@ static void diagnosis()
     CHECK(q.vin().empty());
 }
 
+static void motorPowerEstimate()
+{
+    // The iWoc8910 at level 3 uphill: 5.2 A of motor current at 38.9 V.
+    Parser p;
+    p.feed(fromHex("246d245a230318" "0034" "00de" "a6" "00" "004f" "64" "2340"));
+    p.feed(fromHex("2462245a230185641700000990098527152340"));
+    // 0x0185 = 389 -> the short battery frame reads /10: 38.9 V
+    auto w = estimatedMotorPowerW(p.motor(), p.battery());
+    CHECK(w.has_value());
+    CHECK(near(*w, 5.2 * 38.9, 0.5));
+
+    // A bike that reports a real power does not get an estimate; nor does a missing number.
+    Parser q = parserFor("102");
+    q.feed(fromHex("246d245a23011600000000000000005a03ff2340"));
+    q.feed(fromHex("2462245a230ec2391600000dc807d31827152340"));
+    CHECK(!estimatedMotorPowerW(q.motor(), q.battery()).has_value());
+    CHECK(!estimatedMotorPowerW(std::nullopt, p.battery()).has_value());
+    CHECK(!estimatedMotorPowerW(p.motor(), std::nullopt).has_value());
+}
+
 static void noise()
 {
     Parser p;
@@ -491,6 +511,7 @@ int main()
     assist();
     motorMaps();
     diagnosis();
+    motorPowerEstimate();
     vin();
     noise();
     return finish("mahle");
