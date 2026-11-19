@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launcher icon, drawn after the Sailfish OS app icon template (86 x 86, the "leaf" shape with two round and
+     two sharp corners, a diagonal gradient, flat colours from the template's palette, a translucent highlight).
+     Template: https://sailfishos.org/design/icons/ (CC BY 3.0). Rendered by tools/make_icon.py. -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="86px" height="86px" viewBox="0 0 86 86">
+  <defs>
+    <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="0.7" y1="85.3" x2="85.3" y2="0.7">
+      <stop offset="0" style="stop-color:#0E8FA6"/>
+      <stop offset="1" style="stop-color:#8ED43C"/>
+    </linearGradient>
+    <linearGradient id="bolt" gradientUnits="userSpaceOnUse" x1="36" y1="20" x2="52" y2="66">
+      <stop offset="0" style="stop-color:#FFC21A"/>
+      <stop offset="1" style="stop-color:#FF7636"/>
+    </linearGradient>
+    <clipPath id="leaf">
+      <path d="M84.277,0.3H43C19.417,0.3,0.3,19.418,0.3,43v41.277c0,0.786,0.637,1.423,1.423,1.423H43
+               c23.583,0,42.7-19.118,42.7-42.7V1.723C85.7,0.937,85.063,0.3,84.277,0.3z"/>
+    </clipPath>
+  </defs>
+
+  <!-- the leaf -->
+  <path fill="url(#bg)" d="M84.277,0.3H43C19.417,0.3,0.3,19.418,0.3,43v41.277c0,0.786,0.637,1.423,1.423,1.423H43
+       c23.583,0,42.7-19.118,42.7-42.7V1.723C85.7,0.937,85.063,0.3,84.277,0.3z"/>
+
+  <g clip-path="url(#leaf)">
+    <!-- layered translucent shapes, as in the library's icons -->
+    <path opacity="0.5" fill="#D8F27A" d="M85.7,38 C70,38 52,52 52,85.7 L85.7,85.7 Z"/>
+    <path opacity="0.35" fill="#FFFFFF" d="M0.3,60 C0.3,28 22,0.3 54,0.3 L0.3,0.3 Z"/>
+  </g>
+
+  <!-- a cream face like the clock's, a blue tyre ring inside it, and the bolt -->
+  <circle cx="43" cy="43" r="32.025" fill="#F9F8D9" opacity="0.93"/>
+  <circle cx="43" cy="43" r="26.2" fill="none" stroke="#1472A0" stroke-width="4.4"/>
+  <circle cx="43" cy="43" r="3.4" fill="#1472A0"/>
+  <g stroke="#1472A0" stroke-width="1.3" opacity="0.55" stroke-linecap="round">
+    <line x1="43" y1="19" x2="43" y2="26"/>
+    <line x1="43" y1="60" x2="43" y2="67"/>
+    <line x1="19" y1="43" x2="26" y2="43"/>
+    <line x1="60" y1="43" x2="67" y2="43"/>
+  </g>
+  <path fill="url(#bolt)" stroke="#E5650F" stroke-width="0.9" stroke-linejoin="round"
+        d="M49,15.5 L28.5,46.5 L40.5,46.5 L35,70.5 L58,37.5 L45.5,37.5 Z"/>
+  <path fill="#FFFFFF" opacity="0.35" d="M49,15.5 L28.5,46.5 L34.5,46.5 L44,15.5 Z"/>
+</svg>
