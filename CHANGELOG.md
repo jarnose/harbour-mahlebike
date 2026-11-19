@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+
+- A new launcher icon, drawn after the Sailfish OS app icon template (leaf shape, gradient, flat palette). The
+  source is `icons/src/harbour-mahlebike.svg`.
+
 ## 1.1.0
 
 - Ride export as **FIT** (sport cycling, sub-sport e-bike; the battery charge and assist level in the profile's
